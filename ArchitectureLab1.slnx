@@ -1,5 +1,5 @@
 <Solution>
-  <Project Path="BookLibrary.ConsoleApp/StarCatalog.ConsoleApp.csproj" Id="ce90b445-45dc-4cec-9e10-cb35c22e5fbb" />
-  <Project Path="BookLibrary.Core/StarCatalog.Core.csproj" Id="80a8365a-a349-463f-90a2-24ee6b4d34e7" />
-  <Project Path="BookLibrary.WinFormsApp/StarCatalog.WinFormsApp.csproj" Id="70d381f5-038d-4658-b259-6e88f04a7339" />
+  <Project Path="StarCatalog.ConsoleApp/StarCatalog.ConsoleApp.csproj" Id="ce90b445-45dc-4cec-9e10-cb35c22e5fbb" />
+  <Project Path="StarCatalog.Core/StarCatalog.Core.csproj" Id="80a8365a-a349-463f-90a2-24ee6b4d34e7" />
+  <Project Path="StarCatalog.WinFormsApp/StarCatalog.WinFormsApp.csproj" Id="70d381f5-038d-4658-b259-6e88f04a7339" />
 </Solution>

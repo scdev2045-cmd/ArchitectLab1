@@ -89,7 +89,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BookLibrary.Core\StarCatalog.Core.csproj">
+    <ProjectReference Include="..\StarCatalog.Core\StarCatalog.Core.csproj">
       <Project>{80a8365a-a349-463f-90a2-24ee6b4d34e7}</Project>
       <Name>StarCatalog.Core</Name>
     </ProjectReference>
