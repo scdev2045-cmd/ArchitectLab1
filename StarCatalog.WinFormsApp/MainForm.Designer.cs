@@ -86,7 +86,7 @@
             this.btnFilter.Name = "btnFilter";
             this.btnFilter.Size = new System.Drawing.Size(193, 41);
             this.btnFilter.TabIndex = 4;
-            this.btnFilter.Text = "Фильтр по Жанру";
+            this.btnFilter.Text = "Фильтр";
             this.btnFilter.UseVisualStyleBackColor = true;
             this.btnFilter.Click += new System.EventHandler(this.btnFilter_Click);
             // 
