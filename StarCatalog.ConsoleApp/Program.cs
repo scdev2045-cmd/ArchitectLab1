@@ -9,7 +9,6 @@ namespace StarCatalog.ConsoleApp
 {
     internal class Program
     {
-        // Создаем общий экземпляр логики
         private static Logic logic = new Logic();
 
         static void Main(string[] args)
@@ -18,7 +17,6 @@ namespace StarCatalog.ConsoleApp
 
             while (isRunning)
             {
-                // Очищаем экран перед каждой отрисовкой меню
                 Console.Clear();
                 Console.WriteLine("==================================================");
                 Console.WriteLine("          КАТАЛОГ АСТРОНОМИЧЕСКИХ ЗВЕЗД           ");
@@ -72,7 +70,6 @@ namespace StarCatalog.ConsoleApp
             }
         }
 
-        // Вспомогательный метод для задержки экрана перед возвратом в меню
         private static void PauseScreen()
         {
             Console.WriteLine("\nНажмите любую клавишу для возврата в меню...");
@@ -92,7 +89,6 @@ namespace StarCatalog.ConsoleApp
                 return;
             }
 
-            // Вывод каждой звезды в одну простую строку через разделители
             for (int i = 0; i < list.Count; i = i + 1)
             {
                 Star s = list[i];
@@ -101,7 +97,6 @@ namespace StarCatalog.ConsoleApp
             Console.WriteLine();
         }
 
-        // 1. Показ всех звезд
         private static void ShowAllStars()
         {
             Console.Clear();
@@ -121,7 +116,6 @@ namespace StarCatalog.ConsoleApp
             Console.Write("Введите ФИО первооткрывателя: ");
             string discoverer = Console.ReadLine();
 
-            // Ввод типа звезды через выбор номера из списка
             Console.WriteLine("\nВыберите спектральный тип звезды:");
             Console.WriteLine("1. Красный гигант");
             Console.WriteLine("2. Желтый карлик");
@@ -148,14 +142,12 @@ namespace StarCatalog.ConsoleApp
             PauseScreen();
         }
 
-        // 3. Удаление звезды по ID с предварительным показом списка
         private static void RemoveStar()
         {
             Console.Clear();
             Console.WriteLine("=== УДАЛЕНИЕ ЗВЕЗДЫ ===");
             Console.WriteLine("Текущий список доступных объектов:\n");
 
-            // Сначала показываем пользователю все доступные звезды и их номера
             PrintStarsTable();
 
             Console.Write("Введите ID звезды, которую хотите удалить: ");
@@ -181,14 +173,12 @@ namespace StarCatalog.ConsoleApp
             PauseScreen();
         }
 
-        // 4. Редактирование звезды по ID с предварительным показом списка
         private static void EditStar()
         {
             Console.Clear();
             Console.WriteLine("=== РЕДАКТИРОВАНИЕ ЗВЕЗДЫ ===");
             Console.WriteLine("Текущий список доступных объектов:\n");
 
-            // Выводим список звезд перед вводом ID
             PrintStarsTable();
 
             Console.Write("Введите ID звезды для изменения: ");

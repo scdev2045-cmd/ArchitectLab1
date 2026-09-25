@@ -43,15 +43,13 @@ namespace StarCatalog.WinFormsApp
         {
             InitializeComponent();
 
-            // Заполняем выпадающий список допустимыми типами
             cmbStarType.Items.Clear();
             cmbStarType.Items.Add("Красный гигант");
             cmbStarType.Items.Add("Желтый карлик");
             cmbStarType.Items.Add("Белый карлик");
             cmbStarType.Items.Add("Нейтронная звезда");
-            cmbStarType.SelectedIndex = 0; // По умолчанию выбран первый пункт
+            cmbStarType.SelectedIndex = 0;
 
-            // Если редактируем существующую звезду — подставляем ее данные
             if (star != null)
             {
                 txtName.Text = star.Name;
@@ -76,7 +74,6 @@ namespace StarCatalog.WinFormsApp
                 return;
             }
 
-            // Сохраняем значения в свойства формы
             StarName = txtName.Text.Trim();
             Discoverer = txtDiscoverer.Text.Trim();
             StarType = cmbStarType.SelectedItem.ToString();

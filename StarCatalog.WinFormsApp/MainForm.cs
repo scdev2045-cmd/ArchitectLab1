@@ -20,7 +20,6 @@ namespace StarCatalog.WinFormsApp
         {
             InitializeComponent();
 
-            // Настраиваем выпадающий список для быстрой фильтрации
             cmbFilterType.Items.Clear();
             cmbFilterType.Items.Add("Красный гигант");
             cmbFilterType.Items.Add("Желтый карлик");
