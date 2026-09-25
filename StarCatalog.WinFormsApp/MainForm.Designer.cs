@@ -106,7 +106,7 @@
             this.btnCalculateAvg.Name = "btnCalculateAvg";
             this.btnCalculateAvg.Size = new System.Drawing.Size(119, 42);
             this.btnCalculateAvg.TabIndex = 6;
-            this.btnCalculateAvg.Text = "Средний Диаметр";
+            this.btnCalculateAvg.Text = "Средний радиус";
             this.btnCalculateAvg.UseVisualStyleBackColor = true;
             this.btnCalculateAvg.Click += new System.EventHandler(this.btnCalculateAvg_Click);
             // 

@@ -119,55 +119,101 @@ namespace StarCatalog.ConsoleApp
             Console.Write("Введите ФИО первооткрывателя: ");
             string discoverer = Console.ReadLine();
 
+            while (string.IsNullOrWhiteSpace(discoverer))
+            {
+                Console.WriteLine();
+                Console.WriteLine(
+                    "ФИО первооткрывателя не может быть пустым.");
+
+                Console.Write(
+                    "Введите ФИО первооткрывателя еще раз: ");
+
+                discoverer = Console.ReadLine();
+            }
+
             string starType = "";
+            int typeNumber = 0;
+
             while (starType == "")
             {
+                Console.Clear();
+
+                Console.WriteLine("--- ДОБАВЛЕНИЕ НОВОЙ ЗВЕЗДЫ ---");
+                Console.WriteLine("Название: " + name);
+                Console.WriteLine("Первооткрыватель: " + discoverer);
+                Console.WriteLine();
+
+                Console.WriteLine("Выберите тип звезды:");
                 Console.WriteLine("1. Красный гигант");
                 Console.WriteLine("2. Желтый карлик");
                 Console.WriteLine("3. Белый карлик");
                 Console.WriteLine("4. Нейтронная звезда");
                 Console.Write("Введите номер типа: ");
 
-                int typeNumber;
+                bool numberCorrect = int.TryParse(
+                    Console.ReadLine(),
+                    out typeNumber);
 
-                if (int.TryParse(Console.ReadLine(), out typeNumber))
+                if (!numberCorrect)
                 {
-                    if (typeNumber == 1)
-                    {
-                        starType = "Красный гигант";
-                    }
-                    else if (typeNumber == 2)
-                    {
-                        starType = "Желтый карлик";
-                    }
-                    else if (typeNumber == 3)
-                    {
-                        starType = "Белый карлик";
-                    }
-                    else if (typeNumber == 4)
-                    {
-                        starType = "Нейтронная звезда";
-                    }
-                    else
-                    {
-                        Console.WriteLine("Введите число от 1 до 4.\n");
-                    }
+                    Console.WriteLine();
+                    Console.WriteLine(
+                        "Ошибка: необходимо ввести число от 1 до 4.");
+                    Console.WriteLine(
+                        "Нажмите любую клавишу для продолжения...");
+                    Console.ReadKey();
+                    continue;
+                }
+
+                if (typeNumber == 1)
+                {
+                    starType = "Красный гигант";
+                }
+                else if (typeNumber == 2)
+                {
+                    starType = "Желтый карлик";
+                }
+                else if (typeNumber == 3)
+                {
+                    starType = "Белый карлик";
+                }
+                else if (typeNumber == 4)
+                {
+                    starType = "Нейтронная звезда";
                 }
                 else
                 {
-                    Console.WriteLine("Нужно ввести число.\n");
+                    Console.WriteLine();
+                    Console.WriteLine(
+                        "Ошибка: введите число от 1 до 4.");
+                    Console.WriteLine(
+                        "Нажмите любую клавишу для продолжения...");
+                    Console.ReadKey();
                 }
             }
+
+            Console.Clear();
+
+            Console.WriteLine("--- ДОБАВЛЕНИЕ НОВОЙ ЗВЕЗДЫ ---");
+            Console.WriteLine("Название: " + name);
+            Console.WriteLine("Первооткрыватель: " + discoverer);
+            Console.WriteLine("Тип: " + starType);
+            Console.WriteLine();
 
             Console.Write("Введите радиус звезды: ");
 
             double radius;
 
-            while (!double.TryParse(Console.ReadLine(), out radius)
+            while (!double.TryParse(
+                       Console.ReadLine(),
+                       out radius)
                    || radius <= 0)
             {
-                Console.Write(
-                    "Ошибка. Введите положительное число: ");
+                Console.WriteLine();
+                Console.WriteLine(
+                    "Ошибка: радиус должен быть положительным числом.");
+
+                Console.Write("Введите радиус еще раз: ");
             }
 
             bool added = logic.AddStar(name, discoverer, starType, radius);
@@ -245,8 +291,30 @@ namespace StarCatalog.ConsoleApp
             Console.Write("Новое название: ");
             string name = Console.ReadLine();
 
+            while (string.IsNullOrWhiteSpace(name))
+            {
+                Console.WriteLine();
+                Console.WriteLine(
+                    "Название не может быть пустым или состоять только из пробелов.");
+
+                Console.Write("Введите новое название еще раз: ");
+                name = Console.ReadLine();
+            }
+
             Console.Write("Новый первооткрыватель: ");
             string discoverer = Console.ReadLine();
+
+            while (string.IsNullOrWhiteSpace(discoverer))
+            {
+                Console.WriteLine();
+                Console.WriteLine(
+                    "Первооткрыватель не может быть пустым или состоять только из пробелов.");
+
+                Console.Write(
+                    "Введите нового первооткрывателя еще раз: ");
+
+                discoverer = Console.ReadLine();
+            }
 
             string newStarType = "";
 
@@ -308,8 +376,19 @@ namespace StarCatalog.ConsoleApp
                 Console.Write("Некорректное значение. Введите число: ");
             }
 
-            logic.UpdateStar(id, name, discoverer, newStarType, radius);
-            Console.WriteLine("\n[Успех] Данные звезды обновлены!");
+            bool updated = logic.UpdateStar(id, name.Trim(), discoverer.Trim(), newStarType, radius);
+
+            if (updated)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Данные звезды успешно обновлены.");
+            }
+            else
+            {
+                Console.WriteLine();
+                Console.WriteLine(
+                    "Не удалось обновить данные звезды.");
+            }
             PauseScreen();
         }
 
@@ -317,32 +396,109 @@ namespace StarCatalog.ConsoleApp
         {
             Console.Clear();
             Console.WriteLine("--- ПОИСК ЗВЕЗД ПО ТИПУ ---");
-            Console.WriteLine("1. Красный гигант");
-            Console.WriteLine("2. Желтый карлик");
-            Console.WriteLine("3. Белый карлик");
-            Console.WriteLine("4. Нейтронная звезда");
-            Console.Write("Выберите искомый тип (1-4): ");
-            string choice = Console.ReadLine();
 
-            string starType = "Желтый карлик";
-            if (choice == "1") starType = "Красный гигант";
-            else if (choice == "2") starType = "Желтый карлик";
-            else if (choice == "3") starType = "Белый карлик";
-            else if (choice == "4") starType = "Нейтронная звезда";
+            List<Star> allStars = logic.GetAllStars();
 
-            List<Star> found = logic.GetStarsByType(starType);
-            Console.WriteLine("\nРезультаты поиска для типа '" + starType + "':");
-
-            if (found.Count == 0)
+            if (allStars.Count == 0)
             {
-                Console.WriteLine("Звезд такого типа в каталоге не обнаружено.");
+                Console.WriteLine("Список звезд пуст.");
+                PauseScreen();
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Доступные звезды:");
+            PrintStarsTable();
+
+            string selectedType = "";
+
+            while (selectedType == "")
+            {
+                Console.WriteLine();
+                Console.WriteLine("Выберите искомый тип:");
+                Console.WriteLine("1. Красный гигант");
+                Console.WriteLine("2. Желтый карлик");
+                Console.WriteLine("3. Белый карлик");
+                Console.WriteLine("4. Нейтронная звезда");
+                Console.Write("Введите число от 1 до 4: ");
+
+                int typeNumber;
+
+                if (!int.TryParse(
+                        Console.ReadLine(),
+                        out typeNumber))
+                {
+                    Console.WriteLine();
+                    Console.WriteLine(
+                        "Ошибка: нужно ввести целое число от 1 до 4.");
+
+                    Console.WriteLine(
+                        "Нажмите любую клавишу для повторной попытки.");
+                    Console.ReadKey();
+
+                    Console.Clear();
+                    Console.WriteLine("--- ПОИСК ЗВЕЗД ПО ТИПУ ---");
+                    continue;
+                }
+
+                if (typeNumber == 1)
+                {
+                    selectedType = "Красный гигант";
+                }
+                else if (typeNumber == 2)
+                {
+                    selectedType = "Желтый карлик";
+                }
+                else if (typeNumber == 3)
+                {
+                    selectedType = "Белый карлик";
+                }
+                else if (typeNumber == 4)
+                {
+                    selectedType = "Нейтронная звезда";
+                }
+                else
+                {
+                    Console.WriteLine();
+                    Console.WriteLine(
+                        "Ошибка: нужно ввести число от 1 до 4.");
+
+                    Console.WriteLine(
+                        "Нажмите любую клавишу для повторной попытки.");
+                    Console.ReadKey();
+
+                    Console.Clear();
+                    Console.WriteLine("--- ПОИСК ЗВЕЗД ПО ТИПУ ---");
+                }
+            }
+
+            List<Star> foundStars =
+                logic.GetStarsByType(selectedType);
+
+            Console.Clear();
+            Console.WriteLine("--- РЕЗУЛЬТАТЫ ПОИСКА ---");
+            Console.WriteLine(
+                "Выбранный тип: " + selectedType);
+            Console.WriteLine();
+
+            if (foundStars.Count == 0)
+            {
+                Console.WriteLine(
+                    "Звезд такого типа не найдено.");
             }
             else
             {
-                for (int i = 0; i < found.Count; i = i + 1)
+                for (int i = 0; i < foundStars.Count; i = i + 1)
                 {
-                    Star s = found[i];
-                    Console.WriteLine("ID: " + s.Id + " | Название: " + s.Name + " | Радиус: " + s.Radius + " R☉");
+                    Star star = foundStars[i];
+
+                    Console.WriteLine(
+                        "ID: " + star.Id +
+                        " | Название: " + star.Name +
+                        " | Открыл: " + star.Discoverer +
+                        " | Тип: " + star.StarType +
+                        " | Радиус: " + star.Radius +
+                        " R_Sun");
                 }
             }
 
@@ -354,7 +510,7 @@ namespace StarCatalog.ConsoleApp
             Console.Clear();
             Console.WriteLine("--- СРЕДНИЙ РАДИУС ЗВЕЗД КАТАЛОГА ---");
             double avg = logic.CalculateAverageRadius();
-            Console.WriteLine("Средний радиус зарегистрированных звезд: " + avg.ToString("F2") + " R☉");
+            Console.WriteLine("Средний радиус зарегистрированных звезд: " + avg.ToString("F2") + " R.sun");
             PauseScreen();
         }
     }
