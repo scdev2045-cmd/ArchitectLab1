@@ -76,9 +76,6 @@ namespace StarCatalog.ConsoleApp
             Console.ReadKey();
         }
 
-        /// <summary>
-        /// Выводит простой список звезд по строкам.
-        /// </summary>
         private static void PrintStarsTable()
         {
             List<Star> list = logic.GetAllStars();
