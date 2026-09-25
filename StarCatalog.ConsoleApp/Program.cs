@@ -249,8 +249,16 @@ namespace StarCatalog.ConsoleApp
             string discoverer = Console.ReadLine();
 
             string newStarType = "";
+
             while (newStarType == "")
             {
+                Console.Clear();
+
+                Console.WriteLine("--- РЕДАКТИРОВАНИЕ ЗВЕЗДЫ ---");
+                Console.WriteLine("Выбрана звезда: " + star.Name);
+                Console.WriteLine();
+
+                Console.WriteLine("Выберите новый тип звезды:");
                 Console.WriteLine("1. Красный гигант");
                 Console.WriteLine("2. Желтый карлик");
                 Console.WriteLine("3. Белый карлик");
@@ -259,32 +267,37 @@ namespace StarCatalog.ConsoleApp
 
                 int typeNumber;
 
-                if (int.TryParse(Console.ReadLine(), out typeNumber))
+                if (!int.TryParse(Console.ReadLine(), out typeNumber))
                 {
-                    if (typeNumber == 1)
-                    {
-                        newStarType = "Красный гигант";
-                    }
-                    else if (typeNumber == 2)
-                    {
-                        newStarType = "Желтый карлик";
-                    }
-                    else if (typeNumber == 3)
-                    {
-                        newStarType = "Белый карлик";
-                    }
-                    else if (typeNumber == 4)
-                    {
-                        newStarType = "Нейтронная звезда";
-                    }
-                    else
-                    {
-                        Console.WriteLine("Введите число от 1 до 4.\n");
-                    }
+                    Console.WriteLine();
+                    Console.WriteLine("Ошибка: нужно ввести число от 1 до 4.");
+                    Console.WriteLine("Нажмите любую клавишу и попробуйте снова.");
+                    Console.ReadKey();
+                    continue;
+                }
+
+                if (typeNumber == 1)
+                {
+                    newStarType = "Красный гигант";
+                }
+                else if (typeNumber == 2)
+                {
+                    newStarType = "Желтый карлик";
+                }
+                else if (typeNumber == 3)
+                {
+                    newStarType = "Белый карлик";
+                }
+                else if (typeNumber == 4)
+                {
+                    newStarType = "Нейтронная звезда";
                 }
                 else
                 {
-                    Console.WriteLine("Нужно ввести число.\n");
+                    Console.WriteLine();
+                    Console.WriteLine("Ошибка: введите число от 1 до 4.");
+                    Console.WriteLine("Нажмите любую клавишу и попробуйте снова.");
+                    Console.ReadKey();
                 }
             }
 
