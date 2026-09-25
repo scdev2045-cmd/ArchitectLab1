@@ -64,11 +64,25 @@ namespace StarCatalog.Core
         /// <param name="discoverer">ФИО первооткрывателя.</param>
         /// <param name="starType">Спектральный тип звезды.</param>
         /// <param name="radius">Радиус звезды в радиусах Солнца.</param>
-        public void AddStar(string name, string discoverer, string starType, double radius)
+        public bool AddStar(string name, string discoverer, string starType, double radius)
         {
+            if (!IsStarDataCorrect(name, discoverer, starType, radius))
+            {
+                return false;
+            }
+
             int freeId = GetNextAvailableId();
-            Star newStar = new Star(freeId, name, discoverer, starType, radius);
+
+            Star newStar = new Star(
+                freeId,
+                name.Trim(),
+                discoverer.Trim(),
+                starType.Trim(),
+                radius);
+
             stars.Add(newStar);
+
+            return true;
         }
 
         /// <summary>
@@ -119,6 +133,32 @@ namespace StarCatalog.Core
             return false;
         }
 
+
+        private bool IsStarDataCorrect(string name, string discoverer, string starType, double radius)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(discoverer))
+            {
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(starType))
+            {
+                return false;
+            }
+
+            if (radius <= 0)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Обновляет параметры уже существующей звезды.
         /// </summary>
@@ -128,18 +168,29 @@ namespace StarCatalog.Core
         /// <param name="newStarType">Новый тип звезды.</param>
         /// <param name="newRadius">Новый радиус звезды.</param>
         /// <returns>True, если параметры обновлены; иначе False.</returns>
-        public bool UpdateStar(int id, string newName, string newDiscoverer, string newStarType, double newRadius)
+        public bool UpdateStar(int id, string newName, string newDiscoverer, string newStarType,double newRadius)
         {
             Star starToUpdate = FindById(id);
+
             if (starToUpdate == null)
             {
                 return false;
             }
 
-            starToUpdate.Name = newName;
-            starToUpdate.Discoverer = newDiscoverer;
-            starToUpdate.StarType = newStarType;
+            if (!IsStarDataCorrect(
+                newName,
+                newDiscoverer,
+                newStarType,
+                newRadius))
+            {
+                return false;
+            }
+
+            starToUpdate.Name = newName.Trim();
+            starToUpdate.Discoverer = newDiscoverer.Trim();
+            starToUpdate.StarType = newStarType.Trim();
             starToUpdate.Radius = newRadius;
+
             return true;
         }
 

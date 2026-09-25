@@ -57,8 +57,17 @@ namespace StarCatalog.WinFormsApp
             EditBookForm form = new EditBookForm(null);
             if (form.ShowDialog() == DialogResult.OK)
             {
-                logic.AddStar(form.StarName, form.Discoverer, form.StarType, form.Radius);
-                RefreshGrid(logic.GetAllStars());
+                bool added = logic.AddStar(form.StarName, form.Discoverer, form.StarType, form.Radius);
+
+                if (added)
+                {
+                    MessageBox.Show("Звезда добавлена.");
+                    RefreshGrid(logic.GetAllStars());
+                }
+                else
+                {
+                    MessageBox.Show("Данные звезды заполнены неправильно.");
+                }
             }
         }
 
@@ -74,8 +83,17 @@ namespace StarCatalog.WinFormsApp
             EditBookForm form = new EditBookForm(selected);
             if (form.ShowDialog() == DialogResult.OK)
             {
-                logic.UpdateStar(selected.Id, form.StarName, form.Discoverer, form.StarType, form.Radius);
-                RefreshGrid(logic.GetAllStars());
+                bool updated = logic.UpdateStar(selected.Id, form.StarName, form.Discoverer, form.StarType, form.Radius);
+
+                if (updated)
+                {
+                    MessageBox.Show("Данные звезды изменены.");
+                    RefreshGrid(logic.GetAllStars());
+                }
+                else
+                {
+                    MessageBox.Show("Не удалось изменить данные звезды.");
+                }
             }
         }
 

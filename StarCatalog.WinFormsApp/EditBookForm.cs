@@ -63,14 +63,33 @@ namespace StarCatalog.WinFormsApp
         {
             if (string.IsNullOrWhiteSpace(txtName.Text))
             {
-                MessageBox.Show("Пожалуйста, введите название звезды.");
+                MessageBox.Show("Введите название звезды.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtDiscoverer.Text))
+            {
+                MessageBox.Show("Введите ФИО первооткрывателя.");
+                return;
+            }
+
+            if (cmbStarType.SelectedItem == null)
+            {
+                MessageBox.Show("Выберите тип звезды.");
                 return;
             }
 
             double radius;
-            if (!double.TryParse(txtRadius.Text, out radius) || radius <= 0)
+
+            if (!double.TryParse(txtRadius.Text, out radius))
             {
-                MessageBox.Show("Пожалуйста, введите корректный положительный радиус.");
+                MessageBox.Show("Радиус должен быть числом.");
+                return;
+            }
+
+            if (radius <= 0)
+            {
+                MessageBox.Show("Радиус должен быть больше нуля.");
                 return;
             }
 
