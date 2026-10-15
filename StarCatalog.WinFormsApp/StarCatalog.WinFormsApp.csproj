@@ -104,6 +104,10 @@
       <Project>{80a8365a-a349-463f-90a2-24ee6b4d34e7}</Project>
       <Name>StarCatalog.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\StarCatalog.Model\StarCatalog.Model.csproj">
+      <Project>{b84009f9-538b-48be-be8b-7126cb692680}</Project>
+      <Name>StarCatalog.Model</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

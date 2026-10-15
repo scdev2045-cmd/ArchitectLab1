@@ -2,3 +2,10 @@
 [Bb]in/
 [Oo]bj/
 *.user
+# Рабочие файлы SQL Server
+*.mdf
+*.ldf
+*.ndf
+
+# Загружаемые пакеты NuGet
+/packages/

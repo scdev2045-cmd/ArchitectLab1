@@ -51,14 +51,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IDomainObject.cs" />
-    <Compile Include="Star.cs" />
     <Compile Include="Logic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\StarCatalog.DataAccessLayer\StarCatalog.DataAccessLayer.csproj">
+      <Project>{09e3194a-ad13-440d-bfa0-d4bce5e1b87e}</Project>
+      <Name>StarCatalog.DataAccessLayer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StarCatalog.Model\StarCatalog.Model.csproj">
+      <Project>{b84009f9-538b-48be-be8b-7126cb692680}</Project>
+      <Name>StarCatalog.Model</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
