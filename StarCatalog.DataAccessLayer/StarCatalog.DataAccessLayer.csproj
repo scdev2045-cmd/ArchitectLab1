@@ -45,6 +45,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -55,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DapperRepository.cs" />
+    <Compile Include="DatabaseInitializer.cs" />
     <Compile Include="DatabaseSettings.cs" />
     <Compile Include="EntityRepository.cs" />
     <Compile Include="IRepository.cs" />

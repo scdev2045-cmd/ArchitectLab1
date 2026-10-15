@@ -3,32 +3,45 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Configuration;
 
 namespace StarCatalog.DataAccessLayer
 {
     /// <summary>
-    /// Содержит настройки подключения к базе данных каталога звезд.
+    /// Предоставляет настройки подключения к базе данных.
     /// </summary>
     public static class DatabaseSettings
     {
         /// <summary>
-        /// Возвращает строку подключения к общей базе данных приложения.
+        /// Возвращает строку подключения из конфигурации
+        /// запущенного приложения.
         /// </summary>
         public static string ConnectionString
         {
             get
             {
-                // Символ @ перед строкой позволяет писать
-                // обратные слеши без удвоения.
-                //
-                // Оба интерфейса будут использовать один файл базы.
-                //
-                // Перед переносом на другой компьютер
-                // этот путь потребуется настроить.
-                return
-                    @"Data Source=(LocalDB)\MSSQLLocalDB;" +
-                    @"AttachDbFilename=C:\Users\egorb\source\repos\ArchitectureLab1\StarCatalog.ConsoleApp\StarDatabase.mdf;" +
-                    @"Integrated Security=True;";
+                // Ищем настройку по имени StarDatabase.
+                ConnectionStringSettings settings =
+                    ConfigurationManager
+                        .ConnectionStrings["StarDatabase"];
+
+                // Если настройка отсутствует, сообщаем точную причину.
+                if (settings == null)
+                {
+                    throw new InvalidOperationException(
+                        "В App.config отсутствует строка подключения StarDatabase.");
+                }
+
+                // Настройка может существовать, но содержать пустую строку.
+                if (string.IsNullOrWhiteSpace(
+                    settings.ConnectionString))
+                {
+                    throw new InvalidOperationException(
+                        "Строка подключения StarDatabase не заполнена.");
+                }
+
+                // Возвращаем найденное значение.
+                return settings.ConnectionString;
             }
         }
     }
