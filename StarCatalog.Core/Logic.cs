@@ -13,7 +13,7 @@ namespace StarCatalog.Core
     /// </summary>
     public class Logic
     {
-        private IRepository<Star> repository;
+        private IRepository repository;
 
         /// <summary>
         /// Создает бизнес-логику с репозиторием Dapper\EF.
@@ -21,8 +21,8 @@ namespace StarCatalog.Core
         public Logic()
         {
             DatabaseInitializer.EnsureCreated();
-            repository = new DapperRepository<Star>(DatabaseSettings.ConnectionString);
-            // repository = new EntityRepository<Star>(DatabaseSettings.ConnectionString);
+            repository = new DapperRepository(DatabaseSettings.ConnectionString);
+            // repository = new EntityRepository(DatabaseSettings.ConnectionString);
         }
 
         /// <summary>

@@ -15,8 +15,7 @@ namespace StarCatalog.DataAccessLayer
     /// Тип сущности, которая имеет свойство Id.
     /// Тип должен быть зарегистрирован в контексте базы данных.
     /// </typeparam>
-    public class EntityRepository<T> : IRepository<T>
-        where T : class, IDomainObject
+    public class EntityRepository : IRepository
     {
         private string connectionString;
 
@@ -43,7 +42,7 @@ namespace StarCatalog.DataAccessLayer
         /// Добавляет объект в базу данных.
         /// </summary>
         /// <param name="item">Добавляемый объект.</param>
-        public void Add(T item)
+        public void Add(Star item)
         {
             if (item == null)
             {
@@ -53,7 +52,7 @@ namespace StarCatalog.DataAccessLayer
             using (StarDbContext context =
                 new StarDbContext(connectionString))
             {
-                context.Set<T>().Add(item);
+                context.Stars.Add(item);
 
                 context.SaveChanges();
             }
@@ -69,14 +68,14 @@ namespace StarCatalog.DataAccessLayer
             using (StarDbContext context =
                 new StarDbContext(connectionString))
             {
-                T item = context.Set<T>().Find(id);
+                Star item = context.Stars.Find(id);
 
                 if (item == null)
                 {
                     return;
                 }
 
-                context.Set<T>().Remove(item);
+                context.Stars.Remove(item);
 
                 context.SaveChanges();
             }
@@ -88,14 +87,12 @@ namespace StarCatalog.DataAccessLayer
         /// <returns>
         /// Список объектов. Если записей нет, список будет пустым.
         /// </returns>
-        public List<T> ReadAll()
+        public List<Star> ReadAll()
         {
             using (StarDbContext context =
                 new StarDbContext(connectionString))
             {
-                return context.Set<T>()
-                    .AsNoTracking()
-                    .ToList();
+                return context.Stars.AsNoTracking().ToList();
             }
         }
 
@@ -106,12 +103,12 @@ namespace StarCatalog.DataAccessLayer
         /// <returns>
         /// Найденный объект или null, если запись отсутствует.
         /// </returns>
-        public T ReadById(int id)
+        public Star ReadById(int id)
         {
             using (StarDbContext context =
                 new StarDbContext(connectionString))
             {
-                return context.Set<T>().Find(id);
+                return context.Stars.Find(id);
             }
         }
 
@@ -127,7 +124,7 @@ namespace StarCatalog.DataAccessLayer
         /// <exception cref="InvalidOperationException">
         /// Объект с указанным идентификатором не найден.
         /// </exception>
-        public void Update(T item)
+        public void Update(Star item)
         {
             if (item == null)
             {
@@ -137,8 +134,7 @@ namespace StarCatalog.DataAccessLayer
             using (StarDbContext context =
                 new StarDbContext(connectionString))
             {
-                T existingItem =
-                    context.Set<T>().Find(item.Id);
+                Star existingItem = context.Stars.Find(item.Id);
 
                 if (existingItem == null)
                 {

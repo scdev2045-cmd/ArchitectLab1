@@ -16,8 +16,8 @@ namespace StarCatalog.DataAccessLayer
     /// <typeparam name="T">
     /// Тип сущности. В текущей реализации поддерживается только Star.
     /// </typeparam>
-    public class DapperRepository<T> : IRepository<T>
-        where T : class, IDomainObject
+    public class DapperRepository : IRepository
+
     {
         private string connectionString;
 
@@ -36,11 +36,6 @@ namespace StarCatalog.DataAccessLayer
                     "connectionString");
             }
 
-            if (typeof(T) != typeof(Star))
-            {
-                throw new NotSupportedException(
-                    "Эта реализация DapperRepository поддерживает только Star.");
-            }
 
             this.connectionString = connectionString;
         }
@@ -49,7 +44,7 @@ namespace StarCatalog.DataAccessLayer
         /// Добавляет звезду в базу данных и записывает выданный Id в объект.
         /// </summary>
         /// <param name="item">Добавляемая звезда.</param>
-        public void Add(T item)
+        public void Add(Star item)
         {
             if (item == null)
             {
@@ -108,7 +103,7 @@ namespace StarCatalog.DataAccessLayer
         /// Возвращает все звезды из базы данных.
         /// </summary>
         /// <returns>Список звезд, упорядоченный по идентификатору.</returns>
-        public List<T> ReadAll()
+        public List<Star> ReadAll()
         {
             string sql = @"
                 SELECT
@@ -125,7 +120,7 @@ namespace StarCatalog.DataAccessLayer
             {
                 connection.Open();
 
-                return connection.Query<T>(sql).ToList();
+                return connection.Query<Star>(sql).ToList();
             }
         }
 
@@ -134,7 +129,7 @@ namespace StarCatalog.DataAccessLayer
         /// </summary>
         /// <param name="id">Идентификатор искомой звезды.</param>
         /// <returns>Найденная звезда или null, если записи нет.</returns>
-        public T ReadById(int id)
+        public Star ReadById(int id)
         {
             string sql = @"
                 SELECT
@@ -151,9 +146,7 @@ namespace StarCatalog.DataAccessLayer
             {
                 connection.Open();
 
-                return connection.QuerySingleOrDefault<T>(
-                    sql,
-                    new { Id = id });
+                return connection.QuerySingleOrDefault<Star>(sql, new { Id = id });
             }
         }
 
@@ -164,7 +157,7 @@ namespace StarCatalog.DataAccessLayer
         /// <exception cref="InvalidOperationException">
         /// Запись с указанным идентификатором не найдена.
         /// </exception>
-        public void Update(T item)
+        public void Update(Star item)
         {
             if (item == null)
             {

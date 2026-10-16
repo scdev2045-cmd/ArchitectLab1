@@ -12,13 +12,13 @@ namespace StarCatalog.DataAccessLayer
     /// Ограничение where T : IDomainObject гарантирует, что у сущности всегда есть свойство Id.
     /// </summary>
     /// <typeparam name="T">Тип сущности предметной области.</typeparam>
-    public interface IRepository<T> where T : class, IDomainObject
+    public interface IRepository
     {
         /// <summary>
         /// Добавляет новую сущность в базу данных.
         /// </summary>
         /// <param name="item">Добавляемый объект.</param>
-        void Add(T item);
+        void Add(Star item);
 
         /// <summary>
         /// Удаляет сущность из базы данных по ее уникальному идентификатору.
@@ -30,19 +30,19 @@ namespace StarCatalog.DataAccessLayer
         /// Считывает и возвращает все записи сущностей из базы данных.
         /// </summary>
         /// <returns>Список всех объектов.</returns>
-        List<T> ReadAll();
+        List<Star> ReadAll();
 
         /// <summary>
         /// Находит и возвращает одну запись по уникальному идентификатору.
         /// </summary>
         /// <param name="id">Идентификатор искомой записи.</param>
         /// <returns>Найденный объект или null, если запись отсутствует.</returns>
-        T ReadById(int id);
+        Star ReadById(int id);
 
         /// <summary>
         /// Обновляет данные существующей сущности в базе данных.
         /// </summary>
         /// <param name="item">Объект с обновленными данными.</param>
-        void Update(T item);
+        void Update(Star item);
     }
 }
