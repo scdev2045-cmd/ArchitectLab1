@@ -8,41 +8,34 @@ using StarCatalog.Core;
 namespace StarCatalog.DataAccessLayer
 {
     /// <summary>
-    /// Обобщенный интерфейс репозитория, задающий базовые CRUD-операции для работы с хранилищем данных.
-    /// Ограничение where T : IDomainObject гарантирует, что у сущности всегда есть свойство Id.
+    /// Обобщённый интерфейс репозитория для работы с сущностями, имеющими идентификатор.
     /// </summary>
     /// <typeparam name="T">Тип сущности предметной области.</typeparam>
-    public interface IRepository
+    public interface IRepository<T> where T : class, IDomainObject
     {
         /// <summary>
-        /// Добавляет новую сущность в базу данных.
+        /// Добавляет сущность в хранилище.
         /// </summary>
-        /// <param name="item">Добавляемый объект.</param>
-        void Add(Star item);
+        void Add(T item);
 
         /// <summary>
-        /// Удаляет сущность из базы данных по ее уникальному идентификатору.
+        /// Удаляет сущность по идентификатору.
         /// </summary>
-        /// <param name="id">Идентификатор удаляемой записи.</param>
         void Delete(int id);
 
         /// <summary>
-        /// Считывает и возвращает все записи сущностей из базы данных.
+        /// Возвращает все сущности.
         /// </summary>
-        /// <returns>Список всех объектов.</returns>
-        List<Star> ReadAll();
+        List<T> ReadAll();
 
         /// <summary>
-        /// Находит и возвращает одну запись по уникальному идентификатору.
+        /// Возвращает сущность по идентификатору.
         /// </summary>
-        /// <param name="id">Идентификатор искомой записи.</param>
-        /// <returns>Найденный объект или null, если запись отсутствует.</returns>
-        Star ReadById(int id);
+        T ReadById(int id);
 
         /// <summary>
-        /// Обновляет данные существующей сущности в базе данных.
+        /// Изменяет сущность.
         /// </summary>
-        /// <param name="item">Объект с обновленными данными.</param>
-        void Update(Star item);
+        void Update(T item);
     }
 }

@@ -16,7 +16,7 @@ namespace StarCatalog.DataAccessLayer
     /// <typeparam name="T">
     /// Тип сущности. В текущей реализации поддерживается только Star.
     /// </typeparam>
-    public class DapperRepository : IRepository
+    public class DapperRepository : IRepository<Star>
 
     {
         private string connectionString;

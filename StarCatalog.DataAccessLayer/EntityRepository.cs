@@ -15,7 +15,7 @@ namespace StarCatalog.DataAccessLayer
     /// Тип сущности, которая имеет свойство Id.
     /// Тип должен быть зарегистрирован в контексте базы данных.
     /// </typeparam>
-    public class EntityRepository : IRepository
+    public class EntityRepository<T> : IRepository<T> where T : class, IDomainObject
     {
         private string connectionString;
 
@@ -27,12 +27,11 @@ namespace StarCatalog.DataAccessLayer
         /// </param>
         public EntityRepository(string connectionString)
         {
-
             if (string.IsNullOrWhiteSpace(connectionString))
             {
                 throw new ArgumentException(
                     "Строка подключения не может быть пустой.",
-                    "connectionString");
+                    nameof(connectionString));
             }
 
             this.connectionString = connectionString;
@@ -42,18 +41,16 @@ namespace StarCatalog.DataAccessLayer
         /// Добавляет объект в базу данных.
         /// </summary>
         /// <param name="item">Добавляемый объект.</param>
-        public void Add(Star item)
+        public void Add(T item)
         {
             if (item == null)
             {
-                throw new ArgumentNullException("item");
+                throw new ArgumentNullException(nameof(item));
             }
 
-            using (StarDbContext context =
-                new StarDbContext(connectionString))
+            using (StarDbContext context = new StarDbContext(connectionString))
             {
-                context.Stars.Add(item);
-
+                context.Set<T>().Add(item);
                 context.SaveChanges();
             }
         }
@@ -65,18 +62,16 @@ namespace StarCatalog.DataAccessLayer
         /// <param name="id">Идентификатор удаляемого объекта.</param>
         public void Delete(int id)
         {
-            using (StarDbContext context =
-                new StarDbContext(connectionString))
+            using (StarDbContext context = new StarDbContext(connectionString))
             {
-                Star item = context.Stars.Find(id);
+                T item = context.Set<T>().Find(id);
 
                 if (item == null)
                 {
                     return;
                 }
 
-                context.Stars.Remove(item);
-
+                context.Set<T>().Remove(item);
                 context.SaveChanges();
             }
         }
@@ -87,12 +82,13 @@ namespace StarCatalog.DataAccessLayer
         /// <returns>
         /// Список объектов. Если записей нет, список будет пустым.
         /// </returns>
-        public List<Star> ReadAll()
+        public List<T> ReadAll()
         {
-            using (StarDbContext context =
-                new StarDbContext(connectionString))
+            using (StarDbContext context = new StarDbContext(connectionString))
             {
-                return context.Stars.AsNoTracking().ToList();
+                return context.Set<T>()
+                    .AsNoTracking()
+                    .ToList();
             }
         }
 
@@ -103,12 +99,11 @@ namespace StarCatalog.DataAccessLayer
         /// <returns>
         /// Найденный объект или null, если запись отсутствует.
         /// </returns>
-        public Star ReadById(int id)
+        public T ReadById(int id)
         {
-            using (StarDbContext context =
-                new StarDbContext(connectionString))
+            using (StarDbContext context = new StarDbContext(connectionString))
             {
-                return context.Stars.Find(id);
+                return context.Set<T>().Find(id);
             }
         }
 
@@ -124,28 +119,23 @@ namespace StarCatalog.DataAccessLayer
         /// <exception cref="InvalidOperationException">
         /// Объект с указанным идентификатором не найден.
         /// </exception>
-        public void Update(Star item)
+        public void Update(T item)
         {
             if (item == null)
             {
-                throw new ArgumentNullException("item");
+                throw new ArgumentNullException(nameof(item));
             }
 
-            using (StarDbContext context =
-                new StarDbContext(connectionString))
+            using (StarDbContext context = new StarDbContext(connectionString))
             {
-                Star existingItem = context.Stars.Find(item.Id);
+                T existingItem = context.Set<T>().Find(item.Id);
 
                 if (existingItem == null)
                 {
-                    throw new InvalidOperationException(
-                        "Объект для изменения не найден.");
+                    throw new InvalidOperationException("Объект для изменения не найден.");
                 }
 
-                context.Entry(existingItem)
-                    .CurrentValues
-                    .SetValues(item);
-
+                context.Entry(existingItem).CurrentValues.SetValues(item);
                 context.SaveChanges();
             }
         }

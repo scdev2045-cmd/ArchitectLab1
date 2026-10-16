@@ -13,7 +13,7 @@ namespace StarCatalog.Core
     /// </summary>
     public class Logic
     {
-        private IRepository repository;
+        private IRepository<Star> repository;
 
         /// <summary>
         /// Создает бизнес-логику с репозиторием Dapper\EF.
