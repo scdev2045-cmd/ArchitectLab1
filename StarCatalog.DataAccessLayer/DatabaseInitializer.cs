@@ -18,18 +18,12 @@ namespace StarCatalog.DataAccessLayer
         /// </summary>
         public static void EnsureCreated()
         {
-            // Получаем строку подключения из App.config
-            // запущенного приложения.
             string connectionString =
                 DatabaseSettings.ConnectionString;
 
-            // Разбираем строку подключения на отдельные настройки.
-            // Это безопаснее, чем заменять части строки вручную.
             SqlConnectionStringBuilder builder =
                 new SqlConnectionStringBuilder(connectionString);
 
-            // Проверяем настройку, чтобы случайно не создавать
-            // одну базу, а затем подключаться к другой.
             if (builder.InitialCatalog != "StarCatalogLab2")
             {
                 throw new InvalidOperationException(
@@ -37,7 +31,6 @@ namespace StarCatalog.DataAccessLayer
                     "Initial Catalog=StarCatalogLab2.");
             }
 
-            // Старый способ подключения через файл здесь не используем.
             if (!string.IsNullOrWhiteSpace(builder.AttachDBFilename))
             {
                 throw new InvalidOperationException(
@@ -45,9 +38,6 @@ namespace StarCatalog.DataAccessLayer
                     "Приложение создает базу автоматически.");
             }
 
-            // Сначала подключаемся к служебной базе master.
-            // К StarCatalogLab2 пока подключаться нельзя:
-            // при первом запуске ее еще не существует.
             builder.InitialCatalog = "master";
 
             using (SqlConnection connection =
@@ -55,11 +45,6 @@ namespace StarCatalog.DataAccessLayer
             {
                 connection.Open();
 
-                // DB_ID возвращает идентификатор существующей базы.
-                // NULL означает, что базы с таким именем еще нет.
-                //
-                // Путь к файлам не указываем:
-                // их размещение определит SQL Server.
                 string createDatabaseSql = @"
                     IF DB_ID(N'StarCatalogLab2') IS NULL
                     BEGIN
@@ -69,26 +54,17 @@ namespace StarCatalog.DataAccessLayer
                 using (SqlCommand command =
                     new SqlCommand(createDatabaseSql, connection))
                 {
-                    // Создание базы может занять некоторое время.
                     command.CommandTimeout = 60;
 
-                    // Выполняем команду, которая не возвращает таблицу.
                     command.ExecuteNonQuery();
                 }
             }
 
-            // К этому моменту база должна существовать.
-            // Подключаемся уже к ней по исходной строке.
             using (SqlConnection connection =
                 new SqlConnection(connectionString))
             {
                 connection.Open();
 
-                // Проверяем наличие таблицы.
-                // Если таблица уже есть, повторно ее не создаем.
-                //
-                // Существующие записи при повторном запуске
-                // остаются на месте.
                 string createTableSql = @"
                     IF OBJECT_ID(N'dbo.Stars', N'U') IS NULL
                     BEGIN

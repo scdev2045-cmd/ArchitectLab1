@@ -19,7 +19,6 @@ namespace StarCatalog.DataAccessLayer
     public class DapperRepository<T> : IRepository<T>
         where T : class, IDomainObject
     {
-        // Храним строку подключения для открытия соединений.
         private string connectionString;
 
         /// <summary>
@@ -30,7 +29,6 @@ namespace StarCatalog.DataAccessLayer
         /// </param>
         public DapperRepository(string connectionString)
         {
-            // Запрещаем создание репозитория без подключения.
             if (string.IsNullOrWhiteSpace(connectionString))
             {
                 throw new ArgumentException(
@@ -38,8 +36,6 @@ namespace StarCatalog.DataAccessLayer
                     "connectionString");
             }
 
-            // Проверяем, что репозиторий создается именно для Star.
-            // Запросы ниже используют поля таблицы звезд.
             if (typeof(T) != typeof(Star))
             {
                 throw new NotSupportedException(
@@ -60,10 +56,6 @@ namespace StarCatalog.DataAccessLayer
                 throw new ArgumentNullException("item");
             }
 
-            // Id не указываем в INSERT.
-            // Его автоматически создаст SQL Server.
-            //
-            // OUTPUT INSERTED.Id возвращает номер созданной записи.
             string sql = @"
                 INSERT INTO dbo.Stars
                 (
@@ -81,21 +73,13 @@ namespace StarCatalog.DataAccessLayer
                     @Radius
                 );";
 
-            // using освобождает соединение после выполнения блока.
             using (SqlConnection connection =
                 new SqlConnection(connectionString))
             {
                 connection.Open();
 
-                // Dapper берет значения параметров @Name,
-                // @Discoverer, @StarType и @Radius
-                // из свойств переданного объекта item.
-                //
-                // QuerySingle<int> ожидает одно возвращенное число:
-                // идентификатор созданной записи.
                 int newId = connection.QuerySingle<int>(sql, item);
 
-                // Сохраняем полученный идентификатор в объекте.
                 item.Id = newId;
             }
         }
@@ -116,10 +100,6 @@ namespace StarCatalog.DataAccessLayer
             {
                 connection.Open();
 
-                // Создаем объект с параметром Id.
-                // Dapper передаст его в SQL-параметр @Id.
-                //
-                // Значение не вставляется в текст SQL через склейку строк.
                 connection.Execute(sql, new { Id = id });
             }
         }
@@ -145,10 +125,6 @@ namespace StarCatalog.DataAccessLayer
             {
                 connection.Open();
 
-                // Query<T> создает объекты из строк результата.
-                // Названия столбцов совпадают со свойствами Star.
-                //
-                // ToList превращает результат в обычный List<T>.
                 return connection.Query<T>(sql).ToList();
             }
         }
@@ -175,10 +151,6 @@ namespace StarCatalog.DataAccessLayer
             {
                 connection.Open();
 
-                // Первичный ключ уникален.
-                // Поэтому результат содержит одну запись или ни одной.
-                //
-                // Если строки нет, возвращается null.
                 return connection.QuerySingleOrDefault<T>(
                     sql,
                     new { Id = id });
@@ -213,11 +185,8 @@ namespace StarCatalog.DataAccessLayer
             {
                 connection.Open();
 
-                // Execute возвращает количество затронутых строк.
                 int changedRows = connection.Execute(sql, item);
 
-                // Нельзя считать обновление успешным,
-                // если записи с таким Id не было.
                 if (changedRows == 0)
                 {
                     throw new InvalidOperationException(

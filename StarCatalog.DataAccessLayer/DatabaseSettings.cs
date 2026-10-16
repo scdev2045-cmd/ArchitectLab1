@@ -20,19 +20,16 @@ namespace StarCatalog.DataAccessLayer
         {
             get
             {
-                // Ищем настройку по имени StarDatabase.
                 ConnectionStringSettings settings =
                     ConfigurationManager
                         .ConnectionStrings["StarDatabase"];
 
-                // Если настройка отсутствует, сообщаем точную причину.
                 if (settings == null)
                 {
                     throw new InvalidOperationException(
                         "В App.config отсутствует строка подключения StarDatabase.");
                 }
 
-                // Настройка может существовать, но содержать пустую строку.
                 if (string.IsNullOrWhiteSpace(
                     settings.ConnectionString))
                 {
@@ -40,7 +37,6 @@ namespace StarCatalog.DataAccessLayer
                         "Строка подключения StarDatabase не заполнена.");
                 }
 
-                // Возвращаем найденное значение.
                 return settings.ConnectionString;
             }
         }

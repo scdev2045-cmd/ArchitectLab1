@@ -18,8 +18,6 @@ namespace StarCatalog.DataAccessLayer
         /// </summary>
         public StarDbConfiguration()
         {
-            // Указываем EF, каким провайдером выполнять
-            // обращения к SQL Server через System.Data.SqlClient.
             SetProviderServices(
                 "System.Data.SqlClient",
                 SqlProviderServices.Instance);

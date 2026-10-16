@@ -13,28 +13,14 @@ namespace StarCatalog.Core
     /// </summary>
     public class Logic
     {
-        // Поле хранит ссылку на объект, реализующий IRepository<Star>.
-        //
-        // Методы Logic обращаются к общему интерфейсу.
-        // Поэтому им не нужно знать SQL-запросы
-        // или особенности Entity Framework.
         private IRepository<Star> repository;
 
         /// <summary>
-        /// Создает бизнес-логику с репозиторием Entity Framework.
+        /// Создает бизнес-логику с репозиторием Dapper.
         /// </summary>
         public Logic()
         {
-
-            // При первом запуске создаем базу и таблицу.
-            // При следующих запусках проверяем их наличие,
-            // не удаляя существующие записи.
             DatabaseInitializer.EnsureCreated();
-            // Создаем реализацию репозитория через Dapper.
-            // Строка подключения берется из общего класса настроек.
-            //
-            // Конструктор без параметров сохраняем,
-            // чтобы существующий код new Logic() продолжал работать.
             repository = new DapperRepository<Star>(DatabaseSettings.ConnectionString);
         }
 
@@ -57,8 +43,6 @@ namespace StarCatalog.Core
             string starType,
             double radius)
         {
-            // Сначала проверяем данные.
-            // При ошибке до обращения к базе дело не дойдет.
             if (!IsStarDataCorrect(
                 name,
                 discoverer,
@@ -68,10 +52,6 @@ namespace StarCatalog.Core
                 return false;
             }
 
-            // Создаем объект новой звезды.
-            //
-            // Значение Id = 0 означает, что объект новый.
-            // Настоящий идентификатор выдаст база при добавлении.
             Star newStar = new Star(
                 0,
                 name.Trim(),
@@ -79,10 +59,8 @@ namespace StarCatalog.Core
                 starType.Trim(),
                 radius);
 
-            // Репозиторий выполняет сохранение в базе.
             repository.Add(newStar);
 
-            // До этой строки дойдем только после завершения Add.
             return true;
         }
 
@@ -92,13 +70,8 @@ namespace StarCatalog.Core
         /// <returns>Список звезд или пустой список, если записей нет</returns>
         public List<Star> GetAllStars()
         {
-            // Получаем записи из базы данных.
             List<Star> stars = repository.ReadAll();
 
-            // Явно сортируем результат на уровне Logic.
-            //
-            // Это обеспечивает одинаковый порядок независимо от того,
-            // какой репозиторий используется: Dapper или EF.
             stars.Sort((a, b) => a.Id.CompareTo(b.Id));
 
             return stars;
@@ -114,13 +87,11 @@ namespace StarCatalog.Core
         /// </returns>
         public Star FindById(int id)
         {
-            // В нашей таблице идентификаторы положительные.
             if (id <= 0)
             {
                 return null;
             }
 
-            // Сам поиск выполняет репозиторий.
             return repository.ReadById(id);
         }
 
@@ -139,7 +110,6 @@ namespace StarCatalog.Core
                 return false;
             }
 
-            // Проверяем наличие записи перед удалением.
             Star existingStar = repository.ReadById(id);
 
             if (existingStar == null)
@@ -147,22 +117,17 @@ namespace StarCatalog.Core
                 return false;
             }
 
-            // Удаляем запись через выбранную реализацию репозитория.
             repository.Delete(id);
 
             return true;
         }
 
-        // Общая проверка используется при добавлении и изменении.
-        // Это приватный вспомогательный метод,
-        // поэтому обязательный summary здесь не нужен.
         private bool IsStarDataCorrect(
             string name,
             string discoverer,
             string starType,
             double radius)
         {
-            // Запрещаем null, пустую строку и строку только из пробелов.
             if (string.IsNullOrWhiteSpace(name))
             {
                 return false;
@@ -178,8 +143,6 @@ namespace StarCatalog.Core
                 return false;
             }
 
-            // Ограничения длины совпадают с колонками нашей таблицы.
-            // Проверяем длину после удаления крайних пробелов.
             if (name.Trim().Length > 200)
             {
                 return false;
@@ -190,11 +153,8 @@ namespace StarCatalog.Core
                 return false;
             }
 
-            // Убираем пробелы по краям перед проверкой типа.
             string checkedType = starType.Trim();
 
-            // Разрешаем только те значения, которые используются
-            // в меню, выпадающем списке и ограничении таблицы.
             if (checkedType != "Красный гигант"
                 && checkedType != "Желтый карлик"
                 && checkedType != "Белый карлик"
@@ -203,21 +163,16 @@ namespace StarCatalog.Core
                 return false;
             }
 
-            // Радиус должен быть больше нуля.
             if (radius <= 0)
             {
                 return false;
             }
 
-            // NaN — специальное значение "не число".
-            // Одна проверка radius <= 0 его не отсекает.
             if (double.IsNaN(radius))
             {
                 return false;
             }
 
-            // Бесконечность также не является допустимым радиусом
-            // для сохранения в нашей таблице.
             if (double.IsInfinity(radius))
             {
                 return false;
@@ -247,14 +202,12 @@ namespace StarCatalog.Core
             string newStarType,
             double newRadius)
         {
-            // Проверяем идентификатор до обращения к базе.
+
             if (id <= 0)
             {
                 return false;
             }
 
-            // Проверяем все новые характеристики.
-            // Старые данные пока не изменяются.
             if (!IsStarDataCorrect(
                 newName,
                 newDiscoverer,
@@ -264,7 +217,6 @@ namespace StarCatalog.Core
                 return false;
             }
 
-            // Проверяем, существует ли изменяемая запись.
             Star existingStar = repository.ReadById(id);
 
             if (existingStar == null)
@@ -272,8 +224,6 @@ namespace StarCatalog.Core
                 return false;
             }
 
-            // Формируем объект с новым состоянием записи.
-            // Id сохраняем прежний: обновляем существующую звезду.
             Star updatedStar = new Star(
                 id,
                 newName.Trim(),
@@ -281,9 +231,6 @@ namespace StarCatalog.Core
                 newStarType.Trim(),
                 newRadius);
 
-            // В отличие от версии с List, одного изменения
-            // свойств объекта недостаточно.
-            // Явно передаем новые данные репозиторию для сохранения.
             repository.Update(updatedStar);
 
             return true;
@@ -298,10 +245,8 @@ namespace StarCatalog.Core
         /// </returns>
         public List<Star> GetStarsByType(string starType)
         {
-            // Создаем отдельный список результата.
             List<Star> result = new List<Star>();
 
-            // Пустой запрос не должен приводить к ошибке.
             if (string.IsNullOrWhiteSpace(starType))
             {
                 return result;
@@ -309,13 +254,10 @@ namespace StarCatalog.Core
 
             string searchedType = starType.Trim();
 
-            // Получаем актуальные данные из базы.
-            // GetAllStars уже сортирует их по Id.
             List<Star> stars = GetAllStars();
 
             for (int i = 0; i < stars.Count; i = i + 1)
             {
-                // Сравниваем строки без учета регистра букв.
                 if (string.Equals(
                     stars[i].StarType,
                     searchedType,
@@ -336,10 +278,8 @@ namespace StarCatalog.Core
         /// </returns>
         public double CalculateAverageRadius()
         {
-            // Для расчета каждый раз читаем актуальный каталог.
             List<Star> stars = repository.ReadAll();
 
-            // Не допускаем деление на ноль.
             if (stars.Count == 0)
             {
                 return 0;
