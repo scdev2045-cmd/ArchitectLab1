@@ -16,12 +16,13 @@ namespace StarCatalog.Core
         private IRepository<Star> repository;
 
         /// <summary>
-        /// Создает бизнес-логику с репозиторием Dapper.
+        /// Создает бизнес-логику с репозиторием Dapper\EF.
         /// </summary>
         public Logic()
         {
             DatabaseInitializer.EnsureCreated();
             repository = new DapperRepository<Star>(DatabaseSettings.ConnectionString);
+            // repository = new EntityRepository<Star>(DatabaseSettings.ConnectionString);
         }
 
         /// <summary>
