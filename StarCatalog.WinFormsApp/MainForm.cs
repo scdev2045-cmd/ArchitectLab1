@@ -8,17 +8,30 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using StarCatalog.Core;
-
+using Ninject;
 
 namespace StarCatalog.WinFormsApp
 {
+    /// <summary>
+    /// Главная форма пользовательского интерфейса каталога звезд.
+    /// </summary>
     public partial class MainForm : Form
     {
-        private Logic logic = new Logic();
+        /// <summary>
+        /// Поле бизнес-логики, инициализируемое через DI-контейнер.
+        /// </summary>
+        private readonly Logic logic;
 
-        public MainForm()
+        /// <summary>
+        /// Инициализирует компоненты формы и внедряет зависимость бизнес-логики.
+        /// </summary>
+        /// <param name="logic">Экземпляр бизнес-логики, разрешенный через DI-контейнер.</param>
+        public MainForm(Logic logic)
         {
             InitializeComponent();
+
+            // Внедрение зависимости Logic через конструктор формы
+            this.logic = logic ?? throw new ArgumentNullException(nameof(logic));
 
             cmbFilterType.Items.Clear();
             cmbFilterType.Items.Add("Красный гигант");
@@ -27,7 +40,7 @@ namespace StarCatalog.WinFormsApp
             cmbFilterType.Items.Add("Нейтронная звезда");
             cmbFilterType.SelectedIndex = 0;
 
-            RefreshGrid(logic.GetAllStars());
+            RefreshGrid(this.logic.GetAllStars());
         }
 
         /// <summary>
@@ -43,6 +56,7 @@ namespace StarCatalog.WinFormsApp
         /// <summary>
         /// Возвращает звезду, выбранную в строке таблицы.
         /// </summary>
+        /// <returns>Экземпляр выбранной звезды или null.</returns>
         private Star GetSelectedStar()
         {
             if (dataGridViewStars.CurrentRow != null)
@@ -52,6 +66,9 @@ namespace StarCatalog.WinFormsApp
             return null;
         }
 
+        /// <summary>
+        /// Обработчик события добавления новой звезды.
+        /// </summary>
         private void btnAdd_Click(object sender, EventArgs e)
         {
             EditBookForm form = new EditBookForm(null);
@@ -71,6 +88,9 @@ namespace StarCatalog.WinFormsApp
             }
         }
 
+        /// <summary>
+        /// Обработчик события редактирования выбранной звезды.
+        /// </summary>
         private void btnEdit_Click(object sender, EventArgs e)
         {
             Star selected = GetSelectedStar();
@@ -97,6 +117,9 @@ namespace StarCatalog.WinFormsApp
             }
         }
 
+        /// <summary>
+        /// Обработчик события удаления выбранной звезды.
+        /// </summary>
         private void btnDelete_Click(object sender, EventArgs e)
         {
             Star selected = GetSelectedStar();
@@ -110,6 +133,9 @@ namespace StarCatalog.WinFormsApp
             RefreshGrid(logic.GetAllStars());
         }
 
+        /// <summary>
+        /// Обработчик фильтрации звезд по выбранному типу.
+        /// </summary>
         private void btnFilter_Click(object sender, EventArgs e)
         {
             if (cmbFilterType.SelectedItem == null)
@@ -123,11 +149,17 @@ namespace StarCatalog.WinFormsApp
             RefreshGrid(filtered);
         }
 
+        /// <summary>
+        /// Сбрасывает текущий фильтр и отображает полный каталог.
+        /// </summary>
         private void btnResetFilter_Click(object sender, EventArgs e)
         {
             RefreshGrid(logic.GetAllStars());
         }
 
+        /// <summary>
+        /// Рассчитывает и отображает средний радиус звезд каталога.
+        /// </summary>
         private void btnCalculateAvg_Click(object sender, EventArgs e)
         {
             double avg = logic.CalculateAverageRadius();
