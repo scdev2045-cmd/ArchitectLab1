@@ -13,9 +13,7 @@ namespace StarCatalog.DataAccessLayer
     /// Выполняет CRUD-операции через Dapper.
     /// SQL-запросы этой реализации рассчитаны на сущность Star.
     /// </summary>
-    /// <typeparam name="T">
-    /// Тип сущности. В текущей реализации поддерживается только Star.
-    /// </typeparam>
+    
     public class DapperRepository : IRepository<Star>
 
     {
