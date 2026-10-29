@@ -1,4 +1,4 @@
-Практическая работа 2
+Практическая работа 3
 .NET Framework 4.6.1
 SQL Server Express LocalDB
 
