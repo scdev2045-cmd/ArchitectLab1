@@ -9,9 +9,9 @@ namespace StarCatalog.Core
 {
     /// <summary>
     /// Предоставляет бизнес-логику для работы с каталогом звезд.
-    /// Зависит от абстракции репозитория IRepository, внедряемой через DI-контейнер.
+    /// Реализует контракт ILogic и зависит от абстракции хранилища IRepository (DIP).
     /// </summary>
-    public class Logic
+    public class Logic : ILogic
     {
         /// <summary>
         /// Абстрактное хранилище сущностей звезд.
@@ -19,13 +19,28 @@ namespace StarCatalog.Core
         private readonly IRepository<Star> _repository;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса бизнес-логики с внедрением зависимости репозитория.
+        /// Сервис выполнения аналитических расчетов над звездами (SRP).
         /// </summary>
-        /// <param name="repository">Экземпляр репозитория, удовлетворяющий контракту IRepository.</param>
+        private readonly IStarAnalyticsService _analyticsService;
+
+        /// <summary>
+        /// Инициализирует новый экземпляр класса бизнес-логики с внедрением зависимостей.
+        /// </summary>
+        /// <param name="repository">Экземпляр репозитория, реализующий IRepository.</param>
+        /// <param name="analyticsService">Сервис аналитических вычислений.</param>
         /// <exception cref="ArgumentNullException">Выбрасывается, если передан null.</exception>
-        public Logic(IRepository<Star> repository)
+        public Logic(IRepository<Star> repository, IStarAnalyticsService analyticsService)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository), "Репозиторий не может быть null.");
+            _analyticsService = analyticsService ?? throw new ArgumentNullException(nameof(analyticsService), "Сервис аналитики не может быть null.");
+        }
+
+        /// <summary>
+        /// Перегруженный конструктор для обратной совместимости по OCP.
+        /// </summary>
+        /// <param name="repository">Экземпляр репозитория.</param>
+        public Logic(IRepository<Star> repository) : this(repository, new StarAnalyticsService())
+        {
         }
 
         /// <summary>
@@ -35,7 +50,7 @@ namespace StarCatalog.Core
         /// <param name="discoverer">Сведения о первооткрывателе.</param>
         /// <param name="starType">Поддерживаемый тип звезды.</param>
         /// <param name="radius">Положительный радиус в радиусах Солнца.</param>
-        /// <returns>true, если запись успешно валидирована и передана в хранилище; иначе false.</returns>
+        /// <returns>true, если запись успешно валидирована и сохранена; иначе false.</returns>
         public bool AddStar(string name, string discoverer, string starType, double radius)
         {
             if (!IsStarDataCorrect(name, discoverer, starType, radius))
@@ -89,7 +104,7 @@ namespace StarCatalog.Core
         /// Удаляет существующую звезду по идентификатору.
         /// </summary>
         /// <param name="id">Идентификатор удаляемой записи.</param>
-        /// <returns>true, если запись найдена и удалена; false, если идентификатор некорректен или запись не существует.</returns>
+        /// <returns>true, если запись найдена и удалена; иначе false.</returns>
         public bool DeleteStar(int id)
         {
             if (id <= 0)
@@ -115,7 +130,7 @@ namespace StarCatalog.Core
         /// <param name="newDiscoverer">Новые сведения о первооткрывателе.</param>
         /// <param name="newStarType">Новый тип звезды.</param>
         /// <param name="newRadius">Новый радиус звезды.</param>
-        /// <returns>true, если операция успешно завершена; false, если данные некорректны или звезда не найдена.</returns>
+        /// <returns>true, если операция успешно завершена; иначе false.</returns>
         public bool UpdateStar(int id, string newName, string newDiscoverer, string newStarType, double newRadius)
         {
             if (id <= 0)
@@ -146,56 +161,34 @@ namespace StarCatalog.Core
         }
 
         /// <summary>
-        /// Возвращает список звезд указанного спектрального типа.
+        /// Возвращает список звезд указанного спектрального типа с делегированием сервису аналитики (SRP).
         /// </summary>
         /// <param name="starType">Искомый тип звезды.</param>
         /// <returns>Список найденных звезд или пустой список.</returns>
         public List<Star> GetStarsByType(string starType)
         {
-            List<Star> result = new List<Star>();
-            if (string.IsNullOrWhiteSpace(starType))
-            {
-                return result;
-            }
-
-            string searchedType = starType.Trim();
             List<Star> stars = GetAllStars();
-
-            for (int i = 0; i < stars.Count; i++)
-            {
-                if (string.Equals(stars[i].StarType, searchedType, StringComparison.OrdinalIgnoreCase))
-                {
-                    result.Add(stars[i]);
-                }
-            }
-
-            return result;
+            return _analyticsService.FilterByType(stars, starType);
         }
 
         /// <summary>
-        /// Рассчитывает средний радиус всех зарегистрированных звезд каталога.
+        /// Рассчитывает средний радиус всех зарегистрированных звезд каталога с делегированием сервису аналитики (SRP).
         /// </summary>
         /// <returns>Средний радиус или 0, если каталог пуст.</returns>
         public double CalculateAverageRadius()
         {
             List<Star> stars = _repository.ReadAll();
-            if (stars == null || stars.Count == 0)
-            {
-                return 0.0;
-            }
-
-            double sum = 0;
-            for (int i = 0; i < stars.Count; i++)
-            {
-                sum += stars[i].Radius;
-            }
-
-            return sum / stars.Count;
+            return _analyticsService.CalculateAverageRadius(stars);
         }
 
         /// <summary>
         /// Выполняет внутреннюю валидацию значений атрибутов звезды.
         /// </summary>
+        /// <param name="name">Проверяемое название звезды.</param>
+        /// <param name="discoverer">Проверяемые сведения о первооткрывателе.</param>
+        /// <param name="starType">Проверяемый спектральный тип звезды.</param>
+        /// <param name="radius">Проверяемый радиус звезды.</param>
+        /// <returns>true, если все поля удовлетворяют критериям валидации; иначе false.</returns>
         private bool IsStarDataCorrect(string name, string discoverer, string starType, double radius)
         {
             if (string.IsNullOrWhiteSpace(name) || name.Trim().Length > 200)

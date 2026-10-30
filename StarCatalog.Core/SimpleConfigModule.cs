@@ -20,13 +20,21 @@ namespace StarCatalog.Core
         {
             DatabaseInitializer.EnsureCreated();
 
-            Bind<IRepository<Star>>().To<EntityRepository<Star>>().InSingletonScope()
-                 .WithConstructorArgument("connectionString", DatabaseSettings.ConnectionString);
+            // Bind<IRepository<Star>>().To<EntityRepository<Star>>().InSingletonScope()
+            // .WithConstructorArgument("connectionString", DatabaseSettings.ConnectionString);
 
-            // Bind<IRepository<Star>>()
-                // .To<DapperRepository>()
-                // .InSingletonScope()
-                // .WithConstructorArgument("connectionString", DatabaseSettings.ConnectionString);
+            Bind<IRepository<Star>>()
+                .To<DapperRepository>()
+                .InSingletonScope()
+                .WithConstructorArgument("connectionString", DatabaseSettings.ConnectionString);
+
+            Bind<IStarAnalyticsService>()
+                .To<StarAnalyticsService>()
+                .InSingletonScope();
+
+            Bind<ILogic>()
+                .To<Logic>()
+                .InSingletonScope();
         }
     }
 }

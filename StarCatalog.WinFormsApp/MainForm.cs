@@ -20,13 +20,20 @@ namespace StarCatalog.WinFormsApp
         /// <summary>
         /// Поле бизнес-логики, инициализируемое через DI-контейнер.
         /// </summary>
-        private readonly Logic logic;
+        private readonly ILogic logic;
 
         /// <summary>
-        /// Инициализирует компоненты формы и внедряет зависимость бизнес-логики.
+        /// Конструктор по умолчанию для визуального дизайнера Windows Forms.
         /// </summary>
-        /// <param name="logic">Экземпляр бизнес-логики, разрешенный через DI-контейнер.</param>
-        public MainForm(Logic logic)
+        public MainForm() : this(new StandardKernel(new SimpleConfigModule()).Get<ILogic>())
+        {
+        }
+
+        /// <summary>
+        /// Инициализирует компоненты формы и внедряет зависимость бизнес-логики через интерфейс (DIP).
+        /// </summary>
+        /// <param name="logic">Экземпляр бизнес-логики, реализующий ILogic.</param>
+        public MainForm(ILogic logic)
         {
             InitializeComponent();
 

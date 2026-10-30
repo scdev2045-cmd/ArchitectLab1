@@ -23,7 +23,7 @@ namespace StarCatalog.WinFormsApp
             Application.SetCompatibleTextRenderingDefault(false);
 
             IKernel kernel = new StandardKernel(new SimpleConfigModule());
-            Logic logic = kernel.Get<Logic>();
+            ILogic logic = kernel.Get<ILogic>();
 
             Application.Run(new MainForm(logic));
         }

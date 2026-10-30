@@ -54,9 +54,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ILogic.cs" />
+    <Compile Include="IStarAnalyticsService.cs" />
     <Compile Include="Logic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleConfigModule.cs" />
+    <Compile Include="StarAnalyticsService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

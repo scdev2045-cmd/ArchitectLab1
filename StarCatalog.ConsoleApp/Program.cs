@@ -21,7 +21,7 @@ namespace StarCatalog.ConsoleApp
         /// <summary>
         /// Экземпляр бизнес-логики, полученный через DI-контейнер.
         /// </summary>
-        private static readonly Logic logic = Kernel.Get<Logic>();
+        private static readonly ILogic logic = Kernel.Get<ILogic>();
 
         /// <summary>
         /// Точка входа в консольное приложение.
