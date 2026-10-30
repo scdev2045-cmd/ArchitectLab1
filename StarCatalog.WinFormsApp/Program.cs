@@ -22,11 +22,9 @@ namespace StarCatalog.WinFormsApp
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            // Создаем IoC-контейнер и получаем бизнес-логику для слоя представления
             IKernel kernel = new StandardKernel(new SimpleConfigModule());
             Logic logic = kernel.Get<Logic>();
 
-            // Передаем экземпляр Logic в форму через конструктор
             Application.Run(new MainForm(logic));
         }
     }

@@ -53,7 +53,7 @@ namespace StarCatalog.DataAccessLayer
     }
 
     /// <summary>
-    /// Обобщенный интерфейс репозитория, выступающий фасадом CRUD-операций (ISP / Facade).
+    /// Обобщенный интерфейс репозитория, выступающий фасадом CRUD-операций.
     /// </summary>
     /// <typeparam name="T">Тип сущности предметной области.</typeparam>
     public interface IRepository<T> : IReadOnlyRepository<T>, IWriteOnlyRepository<T> where T : class, IDomainObject

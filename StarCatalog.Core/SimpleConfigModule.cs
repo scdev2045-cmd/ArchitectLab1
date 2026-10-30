@@ -20,8 +20,6 @@ namespace StarCatalog.Core
         {
             DatabaseInitializer.EnsureCreated();
 
-            // Регистрируем репозиторий для Star как Singleton с передачей строки подключения
-            // При необходимости переключения на EntityRepository достаточно изменить привязку здесь:
             Bind<IRepository<Star>>().To<EntityRepository<Star>>().InSingletonScope()
                  .WithConstructorArgument("connectionString", DatabaseSettings.ConnectionString);
 

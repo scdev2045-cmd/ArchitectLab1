@@ -25,7 +25,6 @@ namespace StarCatalog.Core
         /// <exception cref="ArgumentNullException">Выбрасывается, если передан null.</exception>
         public Logic(IRepository<Star> repository)
         {
-            // Внедрение зависимости через конструктор (Constructor Injection)
             _repository = repository ?? throw new ArgumentNullException(nameof(repository), "Репозиторий не может быть null.");
         }
 

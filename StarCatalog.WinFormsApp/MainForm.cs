@@ -30,7 +30,6 @@ namespace StarCatalog.WinFormsApp
         {
             InitializeComponent();
 
-            // Внедрение зависимости Logic через конструктор формы
             this.logic = logic ?? throw new ArgumentNullException(nameof(logic));
 
             cmbFilterType.Items.Clear();
