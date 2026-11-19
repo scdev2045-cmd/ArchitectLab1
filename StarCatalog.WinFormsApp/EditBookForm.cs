@@ -7,39 +7,32 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using StarCatalog.Core;
-
-
+using StarCatalog.Shared;
 
 namespace StarCatalog.WinFormsApp
 {
+    /// <summary>
+    /// Диалоговая форма для ввода характеристик при добавлении или редактировании звезды.
+    /// Работает исключительно с объектом передачи данных StarDto.
+    /// </summary>
     public partial class EditBookForm : Form
     {
         /// <summary>
-        /// Возвращает введенное пользователем название звезды.
+        /// Идентификатор редактируемой звезды (0 при создании новой записи).
         /// </summary>
-        public string StarName { get; private set; }
+        private readonly int _starId;
 
         /// <summary>
-        /// Возвращает введенное ФИО первооткрывателя.
+        /// Возвращает собранный объект StarDto после нажатия кнопки сохранения.
         /// </summary>
-        public string Discoverer { get; private set; }
+        public StarDto ResultStar { get; private set; }
 
         /// <summary>
-        /// Возвращает выбранный из выпадающего списка тип звезды.
+        /// Инициализирует форму редактирования звезды.
+        /// Если передан null — форма работает в режиме добавления новой звезды.
         /// </summary>
-        public string StarType { get; private set; }
-
-        /// <summary>
-        /// Возвращает введенный радиус звезды.
-        /// </summary>
-        public double Radius { get; private set; }
-
-        /// <summary>
-        /// Конструктор окна редактирования. Если передан null — форма работает на создание.
-        /// </summary>
-        /// <param name="star">Объект для изменения или null.</param>
-        public EditBookForm(Star star)
+        /// <param name="star">DTO редактируемой звезды или null для создания новой.</param>
+        public EditBookForm(StarDto star)
         {
             InitializeComponent();
 
@@ -52,13 +45,25 @@ namespace StarCatalog.WinFormsApp
 
             if (star != null)
             {
+                _starId = star.Id;
+                this.Text = "Редактирование звезды";
+
                 txtName.Text = star.Name;
                 txtDiscoverer.Text = star.Discoverer;
                 cmbStarType.SelectedItem = star.StarType;
                 txtRadius.Text = star.Radius.ToString();
             }
+            else
+            {
+                _starId = 0;
+                this.Text = "Добавление звезды";
+            }
         }
 
+        /// <summary>
+        /// Обработчик нажатия кнопки «СОХРАНИТЬ».
+        /// Выполняет базовую проверку ввода полей формы и формирует StarDto.
+        /// </summary>
         private void btnSave_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtName.Text))
@@ -80,7 +85,6 @@ namespace StarCatalog.WinFormsApp
             }
 
             double radius;
-
             if (!double.TryParse(txtRadius.Text, out radius))
             {
                 MessageBox.Show("Радиус должен быть числом.");
@@ -93,15 +97,20 @@ namespace StarCatalog.WinFormsApp
                 return;
             }
 
-            StarName = txtName.Text.Trim();
-            Discoverer = txtDiscoverer.Text.Trim();
-            StarType = cmbStarType.SelectedItem.ToString();
-            Radius = radius;
+            ResultStar = new StarDto(
+                _starId,
+                txtName.Text.Trim(),
+                txtDiscoverer.Text.Trim(),
+                cmbStarType.SelectedItem.ToString(),
+                radius);
 
             DialogResult = DialogResult.OK;
             Close();
         }
 
+        /// <summary>
+        /// Обработчик нажатия кнопки «ОТМЕНА».
+        /// </summary>
         private void btnCancel_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;

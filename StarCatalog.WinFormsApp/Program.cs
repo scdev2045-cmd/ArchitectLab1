@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Ninject;
-using StarCatalog.Core;
+using StarCatalog.Presenter;
 
 namespace StarCatalog.WinFormsApp
 {
@@ -15,6 +14,7 @@ namespace StarCatalog.WinFormsApp
     {
         /// <summary>
         /// Главная точка входа для приложения.
+        /// Создает представление и связывает его с презентером через точку сборки.
         /// </summary>
         [STAThread]
         static void Main()
@@ -22,10 +22,12 @@ namespace StarCatalog.WinFormsApp
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            IKernel kernel = new StandardKernel(new SimpleConfigModule());
-            ILogic logic = kernel.Get<ILogic>();
+            MainForm mainForm = new MainForm();
 
-            Application.Run(new MainForm(logic));
+            using (StarCatalogPresenter presenter = PresenterBootstrapper.CreatePresenter(mainForm))
+            {
+                Application.Run(mainForm);
+            }
         }
     }
 }

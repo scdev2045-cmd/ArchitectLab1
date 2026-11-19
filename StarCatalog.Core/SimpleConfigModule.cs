@@ -35,6 +35,10 @@ namespace StarCatalog.Core
             Bind<ILogic>()
                 .To<Logic>()
                 .InSingletonScope();
+
+            Bind<IStarModel>()
+                .To<StarModel>();
+
         }
     }
 }

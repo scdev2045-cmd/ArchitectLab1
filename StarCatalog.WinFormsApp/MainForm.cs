@@ -7,37 +7,66 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using StarCatalog.Core;
-using Ninject;
+using StarCatalog.Shared;
 
 namespace StarCatalog.WinFormsApp
 {
     /// <summary>
-    /// Главная форма пользовательского интерфейса каталога звезд.
+    /// Главная форма пользовательского интерфейса Windows Forms.
+    /// Реализует интерфейс IStarView: генерирует события действий пользователя
+    /// и отвечает только за отображение переданных данных.
     /// </summary>
-    public partial class MainForm : Form
+    public partial class MainForm : Form, IStarView
     {
         /// <summary>
-        /// Поле бизнес-логики, инициализируемое через DI-контейнер.
+        /// Событие запроса загрузки полного списка звезд.
         /// </summary>
-        private readonly ILogic logic;
+        public event Action LoadStarsRequested;
 
         /// <summary>
-        /// Конструктор по умолчанию для визуального дизайнера Windows Forms.
+        /// Событие запроса добавления новой звезды.
         /// </summary>
-        public MainForm() : this(new StandardKernel(new SimpleConfigModule()).Get<ILogic>())
-        {
-        }
+        public event Action<StarDto> AddStarRequested;
 
         /// <summary>
-        /// Инициализирует компоненты формы и внедряет зависимость бизнес-логики через интерфейс (DIP).
+        /// Событие запроса поиска звезды по идентификатору для редактирования.
         /// </summary>
-        /// <param name="logic">Экземпляр бизнес-логики, реализующий ILogic.</param>
-        public MainForm(ILogic logic)
+        public event Action<int> FindStarForEditRequested;
+
+        /// <summary>
+        /// Событие запроса сохранения изменений существующей звезды.
+        /// </summary>
+        public event Action<StarDto> UpdateStarRequested;
+
+        /// <summary>
+        /// Событие запроса удаления звезды по идентификатору.
+        /// </summary>
+        public event Action<int> DeleteStarRequested;
+
+        /// <summary>
+        /// Событие запроса фильтрации звезд по спектральному типу.
+        /// </summary>
+        public event Action<string> FilterByTypeRequested;
+
+        /// <summary>
+        /// Событие запроса сброса фильтра.
+        /// </summary>
+        public event Action ResetFilterRequested;
+
+        /// <summary>
+        /// Событие запроса расчета среднего радиуса звезд.
+        /// </summary>
+        public event Action CalculateAverageRadiusRequested;
+
+        /// <summary>
+        /// Инициализирует компоненты главной формы и элементы фильтрации.
+        /// Не зависит от бизнес-логики и DI-контейнера.
+        /// </summary>
+        public MainForm()
         {
             InitializeComponent();
 
-            this.logic = logic ?? throw new ArgumentNullException(nameof(logic));
+            this.Text = "Каталог астрономических звезд";
 
             cmbFilterType.Items.Clear();
             cmbFilterType.Items.Add("Красный гигант");
@@ -45,131 +74,203 @@ namespace StarCatalog.WinFormsApp
             cmbFilterType.Items.Add("Белый карлик");
             cmbFilterType.Items.Add("Нейтронная звезда");
             cmbFilterType.SelectedIndex = 0;
-
-            RefreshGrid(this.logic.GetAllStars());
         }
 
         /// <summary>
-        /// Обновляет источник данных таблицы.
+        /// Вызывается автоматически при первой загрузке формы (уже после подписки презентера).
+        /// Генерирует событие LoadStarsRequested для первичного заполнения таблицы.
         /// </summary>
-        /// <param name="list">Список отображаемых звезд.</param>
-        private void RefreshGrid(List<Star> list)
+        /// <param name="e">Аргументы события загрузки формы.</param>
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            Action handler = LoadStarsRequested;
+            if (handler != null)
+            {
+                handler();
+            }
+        }
+
+
+
+        /// <summary>
+        /// Отображает переданный список DTO звезд в таблице DataGridView.
+        /// </summary>
+        /// <param name="stars">Список DTO звезд для отображения.</param>
+        public void ShowStars(List<StarDto> stars)
         {
             dataGridViewStars.DataSource = null;
-            dataGridViewStars.DataSource = list;
+            dataGridViewStars.DataSource = stars;
         }
 
         /// <summary>
-        /// Возвращает звезду, выбранную в строке таблицы.
+        /// Открывает окно редактирования для переданной звезды и, при подтверждении,
+        /// генерирует событие обновления данных.
         /// </summary>
-        /// <returns>Экземпляр выбранной звезды или null.</returns>
-        private Star GetSelectedStar()
+        /// <param name="star">DTO редактируемой звезды.</param>
+        public void ShowStarForEdit(StarDto star)
+        {
+            if (star == null)
+            {
+                ShowError("Не удалось загрузить данные выбранной звезды.");
+                return;
+            }
+
+            using (EditBookForm form = new EditBookForm(star))
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    Action<StarDto> handler = UpdateStarRequested;
+                    if (handler != null)
+                    {
+                        handler(form.ResultStar);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Отображает рассчитанный средний радиус в текстовой метке формы.
+        /// </summary>
+        /// <param name="averageRadius">Средний радиус в радиусах Солнца.</param>
+        public void ShowAverageRadius(double averageRadius)
+        {
+            lblAvgRadius.Text = "Средний радиус звезд: " + averageRadius.ToString("F2") + " R⊙";
+        }
+
+        /// <summary>
+        /// Отображает информационное окно с сообщением об успешной операции.
+        /// </summary>
+        /// <param name="message">Текст сообщения.</param>
+        public void ShowMessage(string message)
+        {
+            MessageBox.Show(message, "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Отображает диалоговое окно с сообщением об ошибке.
+        /// </summary>
+        /// <param name="errorMessage">Текст сообщения об ошибке.</param>
+        public void ShowError(string errorMessage)
+        {
+            MessageBox.Show(errorMessage, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+
+
+
+        /// <summary>
+        /// Возвращает DTO звезды, выбранной в текущей строке таблицы.
+        /// </summary>
+        /// <returns>Выбранный объект StarDto или null, если строка не выбрана.</returns>
+        private StarDto GetSelectedStar()
         {
             if (dataGridViewStars.CurrentRow != null)
             {
-                return dataGridViewStars.CurrentRow.DataBoundItem as Star;
+                return dataGridViewStars.CurrentRow.DataBoundItem as StarDto;
             }
+
             return null;
         }
 
         /// <summary>
-        /// Обработчик события добавления новой звезды.
+        /// Обработчик нажатия кнопки «Добавить».
         /// </summary>
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            EditBookForm form = new EditBookForm(null);
-            if (form.ShowDialog() == DialogResult.OK)
+            using (EditBookForm form = new EditBookForm(null))
             {
-                bool added = logic.AddStar(form.StarName, form.Discoverer, form.StarType, form.Radius);
-
-                if (added)
+                if (form.ShowDialog() == DialogResult.OK)
                 {
-                    MessageBox.Show("Звезда добавлена.");
-                    RefreshGrid(logic.GetAllStars());
-                }
-                else
-                {
-                    MessageBox.Show("Данные звезды заполнены неправильно.");
+                    Action<StarDto> handler = AddStarRequested;
+                    if (handler != null)
+                    {
+                        handler(form.ResultStar);
+                    }
                 }
             }
         }
 
         /// <summary>
-        /// Обработчик события редактирования выбранной звезды.
+        /// Обработчик нажатия кнопки «Изменить».
         /// </summary>
         private void btnEdit_Click(object sender, EventArgs e)
         {
-            Star selected = GetSelectedStar();
+            StarDto selected = GetSelectedStar();
             if (selected == null)
             {
-                MessageBox.Show("Выберите звезду в таблице для редактирования.");
+                ShowError("Выберите звезду в таблице для редактирования.");
                 return;
             }
 
-            EditBookForm form = new EditBookForm(selected);
-            if (form.ShowDialog() == DialogResult.OK)
+            Action<int> handler = FindStarForEditRequested;
+            if (handler != null)
             {
-                bool updated = logic.UpdateStar(selected.Id, form.StarName, form.Discoverer, form.StarType, form.Radius);
-
-                if (updated)
-                {
-                    MessageBox.Show("Данные звезды изменены.");
-                    RefreshGrid(logic.GetAllStars());
-                }
-                else
-                {
-                    MessageBox.Show("Не удалось изменить данные звезды.");
-                }
+                handler(selected.Id);
             }
         }
 
         /// <summary>
-        /// Обработчик события удаления выбранной звезды.
+        /// Обработчик нажатия кнопки «Удалить».
         /// </summary>
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            Star selected = GetSelectedStar();
+            StarDto selected = GetSelectedStar();
             if (selected == null)
             {
-                MessageBox.Show("Выберите звезду для удаления.");
+                ShowError("Выберите звезду для удаления.");
                 return;
             }
 
-            logic.DeleteStar(selected.Id);
-            RefreshGrid(logic.GetAllStars());
+            Action<int> handler = DeleteStarRequested;
+            if (handler != null)
+            {
+                handler(selected.Id);
+            }
         }
 
         /// <summary>
-        /// Обработчик фильтрации звезд по выбранному типу.
+        /// Обработчик нажатия кнопки «Фильтр».
         /// </summary>
         private void btnFilter_Click(object sender, EventArgs e)
         {
             if (cmbFilterType.SelectedItem == null)
             {
-                MessageBox.Show("Выберите тип звезды из списка.");
+                ShowError("Выберите тип звезды из списка.");
                 return;
             }
 
             string selectedType = cmbFilterType.SelectedItem.ToString();
-            List<Star> filtered = logic.GetStarsByType(selectedType);
-            RefreshGrid(filtered);
+
+            Action<string> handler = FilterByTypeRequested;
+            if (handler != null)
+            {
+                handler(selectedType);
+            }
         }
 
         /// <summary>
-        /// Сбрасывает текущий фильтр и отображает полный каталог.
+        /// Обработчик нажатия кнопки «Сбросить фильтр».
         /// </summary>
         private void btnResetFilter_Click(object sender, EventArgs e)
         {
-            RefreshGrid(logic.GetAllStars());
+            Action handler = ResetFilterRequested;
+            if (handler != null)
+            {
+                handler();
+            }
         }
 
         /// <summary>
-        /// Рассчитывает и отображает средний радиус звезд каталога.
+        /// Обработчик нажатия кнопки «Средний радиус».
         /// </summary>
         private void btnCalculateAvg_Click(object sender, EventArgs e)
         {
-            double avg = logic.CalculateAverageRadius();
-            lblAvgRadius.Text = "Средний радиус звезд: " + avg.ToString("F2") + " R⊙";
+            Action handler = CalculateAverageRadiusRequested;
+            if (handler != null)
+            {
+                handler();
+            }
         }
     }
 }
