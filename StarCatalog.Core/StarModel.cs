@@ -59,156 +59,124 @@ namespace StarCatalog.Core
         }
 
         /// <summary>
-        /// Загружает полный список звезд из бизнес-логики и оповещает подписчиков.
+        /// Загружает полный список звезд и передает его подписчикам через событие.
         /// </summary>
         public void LoadAllStars()
         {
+            List<Star> stars;
+
             try
             {
-                List<Star> stars = _logic.GetAllStars();
-
-                RaiseStarsListChanged(stars);
+                stars = _logic.GetAllStars();
             }
             catch (Exception ex)
             {
                 RaiseOperationFailed("Ошибка при загрузке списка звезд: " + ex.Message);
+                return;
             }
+
+            RaiseStarsListChanged(stars);
         }
 
-        
+
         /// <summary>
-        /// Выполняет добавление новой звезды и уведомляет подписчиков о результате.
+        /// Добавляет новую звезду, сообщает результат операции
+        /// и после успешного сохранения запрашивает обновление списка.
         /// </summary>
         /// <param name="name">Название звезды.</param>
-        /// <param name="discoverer">Первооткрыватель звезды.</param>
-        /// <param name="starType">Спектральный тип звезды.</param>
-        /// <param name="radius">Радиус звезды в радиусах Солнца.</param>
+        /// <param name="discoverer">Сведения о первооткрывателе.</param>
+        /// <param name="starType">Поддерживаемый тип звезды.</param>
+        /// <param name="radius">Положительный конечный радиус в радиусах Солнца.</param>
         public void AddStar(string name, string discoverer, string starType, double radius)
         {
-            try
-            {
-                bool added = _logic.AddStar(name, discoverer, starType, radius);
-
-                if (added)
-                {
-                    RaiseOperationSucceeded("Звезда добавлена.");
-
-                    List<Star> updatedList = _logic.GetAllStars();
-                    RaiseStarsListChanged(updatedList);
-                }
-                else
-                {
-                    RaiseOperationFailed("Данные звезды заполнены неправильно.");
-                }
-            }
-            catch (Exception ex)
-            {
-                RaiseOperationFailed("Ошибка при добавлении звезды: " + ex.Message);
-            }
+            ExecuteChange(
+                () => _logic.AddStar(name, discoverer, starType, radius),
+                "Звезда добавлена.",
+                "Данные звезды заполнены неправильно.",
+                "Ошибка при добавлении звезды");
         }
 
 
         /// <summary>
-        /// Ищет звезду по идентификатору и уведомляет подписчиков о результате поиска.
+        /// Ищет звезду для редактирования и сообщает результат через событие.
         /// </summary>
         /// <param name="id">Идентификатор искомой звезды.</param>
         public void FindStarById(int id)
         {
+            Star star;
+
             try
             {
-                Star star = _logic.FindById(id);
-
-                if (star == null)
-                {
-                    RaiseOperationFailed("Звезда с ID " + id + " не найдена.");
-                    return;
-                }
-
-                RaiseStarFoundForEdit(star);
+                star = _logic.FindById(id);
             }
             catch (Exception ex)
             {
                 RaiseOperationFailed("Ошибка при поиске звезды: " + ex.Message);
+                return;
             }
+
+            if (star == null)
+            {
+                RaiseOperationFailed("Звезда с ID " + id + " не найдена.");
+                return;
+            }
+
+            RaiseStarFoundForEdit(star);
         }
 
         /// <summary>
-        /// Обновляет характеристики существующей звезды и уведомляет подписчиков.
+        /// Обновляет характеристики существующей звезды, сообщает результат
+        /// операции и после успешного сохранения запрашивает обновление списка.
         /// </summary>
         /// <param name="id">Идентификатор изменяемой звезды.</param>
         /// <param name="newName">Новое название звезды.</param>
-        /// <param name="newDiscoverer">Новый первооткрыватель.</param>
-        /// <param name="newStarType">Новый спектральный тип.</param>
-        /// <param name="newRadius">Новый радиус звезды.</param>
-        public void UpdateStar(int id, string newName, string newDiscoverer, string newStarType, double newRadius)
+        /// <param name="newDiscoverer">Новые сведения о первооткрывателе.</param>
+        /// <param name="newStarType">Новый поддерживаемый тип звезды.</param>
+        /// <param name="newRadius">Новый положительный конечный радиус в радиусах Солнца.</param>
+        public void UpdateStar(
+            int id, string newName, string newDiscoverer, string newStarType, double newRadius)
         {
-            try
-            {
-                bool updated = _logic.UpdateStar(id, newName, newDiscoverer, newStarType, newRadius);
-
-                if (updated)
-                {
-                    RaiseOperationSucceeded("Данные звезды успешно обновлены.");
-
-                    List<Star> updatedList = _logic.GetAllStars();
-                    RaiseStarsListChanged(updatedList);
-                }
-                else
-                {
-                    RaiseOperationFailed("Не удалось изменить данные звезды. Проверьте корректность полей.");
-                }
-            }
-            catch (Exception ex)
-            {
-                RaiseOperationFailed("Ошибка при изменении звезды: " + ex.Message);
-            }
+            ExecuteChange(
+                () => _logic.UpdateStar(id, newName, newDiscoverer, newStarType, newRadius),
+                "Данные звезды успешно обновлены.",
+                "Не удалось изменить данные: проверьте поля и наличие звезды в каталоге.",
+                "Ошибка при изменении звезды");
         }
 
         /// <summary>
-        /// Удаляет звезду по идентификатору и уведомляет подписчиков о результате.
+        /// Удаляет звезду по идентификатору, сообщает результат операции
+        /// и после успешного удаления запрашивает обновление списка.
         /// </summary>
         /// <param name="id">Идентификатор удаляемой звезды.</param>
         public void DeleteStar(int id)
         {
-            try
-            {
-                bool deleted = _logic.DeleteStar(id);
-
-                if (deleted)
-                {
-                    RaiseOperationSucceeded("Звезда с ID " + id + " была удалена.");
-
-                    List<Star> updatedList = _logic.GetAllStars();
-                    RaiseStarsListChanged(updatedList);
-                }
-                else
-                {
-                    RaiseOperationFailed("Звезда с ID " + id + " не найдена.");
-                }
-            }
-            catch (Exception ex)
-            {
-                RaiseOperationFailed("Ошибка при удалении звезды: " + ex.Message);
-            }
+            ExecuteChange(
+                () => _logic.DeleteStar(id),
+                "Звезда с ID " + id + " была удалена.",
+                "Звезда с ID " + id + " не найдена.",
+                "Ошибка при удалении звезды");
         }
 
 
         /// <summary>
-        /// Фильтрует звезды по спектральному типу и передает результат через событие.
+        /// Фильтрует звезды по типу и передает полученный список через событие.
         /// </summary>
-        /// <param name="starType">Искомый спектральный тип звезды.</param>
+        /// <param name="starType">Искомый тип звезды.</param>
         public void FilterStarsByType(string starType)
         {
+            List<Star> stars;
+
             try
             {
-                List<Star> filteredStars = _logic.GetStarsByType(starType);
-
-                RaiseStarsListChanged(filteredStars);
+                stars = _logic.GetStarsByType(starType);
             }
             catch (Exception ex)
             {
                 RaiseOperationFailed("Ошибка при фильтрации звезд: " + ex.Message);
+                return;
             }
+
+            RaiseStarsListChanged(stars);
         }
 
 
@@ -217,16 +185,81 @@ namespace StarCatalog.Core
         /// </summary>
         public void CalculateAverageRadius()
         {
+            double averageRadius;
+
             try
             {
-                double averageRadius = _logic.CalculateAverageRadius();
-
-                RaiseAverageRadiusCalculated(averageRadius);
+                averageRadius = _logic.CalculateAverageRadius();
             }
             catch (Exception ex)
             {
                 RaiseOperationFailed("Ошибка при расчете среднего радиуса: " + ex.Message);
+                return;
             }
+
+            RaiseAverageRadiusCalculated(averageRadius);
+        }
+
+
+
+        /// <summary>
+        /// Выполняет операцию изменения каталога и уведомляет подписчиков о её результате.
+        /// После успеха отдельно загружает актуальный список.
+        /// </summary>
+        /// <param name="change">
+        /// Операция бизнес-логики, возвращающая true при успехе и false при отказе.
+        /// </param>
+        /// <param name="successMessage">Сообщение об успешном изменении.</param>
+        /// <param name="rejectedMessage">Сообщение для случая, когда операция вернула false.</param>
+        /// <param name="errorPrefix">Начало сообщения об исключении при выполнении операции.</param>
+        private void ExecuteChange(
+            Func<bool> change, string successMessage, string rejectedMessage, string errorPrefix)
+        {
+            bool changed;
+
+            try
+            {
+                changed = change();
+            }
+            catch (Exception ex)
+            {
+                RaiseOperationFailed(errorPrefix + ": " + ex.Message);
+                return;
+            }
+
+            if (!changed)
+            {
+                RaiseOperationFailed(rejectedMessage);
+                return;
+            }
+
+            RaiseOperationSucceeded(successMessage);
+
+            RefreshStarsAfterChange();
+        }
+
+
+        /// <summary>
+        /// Загружает актуальный список после успешного изменения каталога.
+        /// При сбое чтения сообщает, что изменение уже выполнено.
+        /// </summary>
+        private void RefreshStarsAfterChange()
+        {
+            List<Star> stars;
+
+            try
+            {
+                stars = _logic.GetAllStars();
+            }
+            catch (Exception ex)
+            {
+                RaiseOperationFailed(
+                    "Изменение сохранено, но не удалось обновить список звезд. "
+                    + "Запросите список заново. Причина: " + ex.Message);
+                return;
+            }
+
+            RaiseStarsListChanged(stars);
         }
 
 

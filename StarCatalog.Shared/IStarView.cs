@@ -59,9 +59,12 @@ namespace StarCatalog.Shared
         event Action CalculateAverageRadiusRequested;
 
         /// <summary>
-        /// Отображает переданный список звезд в пользовательском интерфейсе.
+        /// Обновляет список звезд, доступный для отображения.
+        /// Способ и момент отрисовки определяет представление.
         /// </summary>
-        /// <param name="stars">Список DTO звезд для отображения.</param>
+        /// <param name="stars">
+        /// Список DTO звезд. Пустой список означает, что отображать нечего.
+        /// </param>
         void ShowStars(List<StarDto> stars);
 
         /// <summary>

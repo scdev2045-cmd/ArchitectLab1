@@ -8,55 +8,67 @@ using StarCatalog.Core;
 namespace StarCatalog.DataAccessLayer
 {
     /// <summary>
-    /// Контракт для операций чтения сущностей из хранилища (ISP).
+    /// Определяет операции чтения сущностей из хранилища.
     /// </summary>
-    /// <typeparam name="T">Тип сущности предметной области.</typeparam>
+    /// <typeparam name="T">Тип сущности с идентификатором.</typeparam>
     public interface IReadOnlyRepository<T> where T : class, IDomainObject
     {
         /// <summary>
-        /// Возвращает все сущности из хранилища данных.
+        /// Возвращает все сохраненные сущности. Порядок элементов не гарантируется.
         /// </summary>
-        /// <returns>Список всех сущностей.</returns>
+        /// <returns>
+        /// Список сущностей; пустой список, если записей нет. Не возвращает null.
+        /// </returns>
         List<T> ReadAll();
 
         /// <summary>
-        /// Возвращает сущность по её уникальному идентификатору.
+        /// Возвращает сохраненную сущность по идентификатору.
         /// </summary>
-        /// <param name="id">Уникальный идентификатор сущности.</param>
-        /// <returns>Найденная сущность или null, если объект не найден.</returns>
+        /// <param name="id">Идентификатор искомой записи.</param>
+        /// <returns>Найденная сущность или null, если записи нет.</returns>
         T ReadById(int id);
     }
 
     /// <summary>
-    /// Контракт для операций модификации сущностей в хранилище (ISP).
+    /// Определяет операции добавления, изменения и удаления сущностей в хранилище.
     /// </summary>
-    /// <typeparam name="T">Тип сущности предметной области.</typeparam>
+    /// <typeparam name="T">Тип сущности с идентификатором.</typeparam>
     public interface IWriteOnlyRepository<T> where T : class, IDomainObject
     {
         /// <summary>
-        /// Добавляет новую сущность в хранилище.
+        /// Сохраняет новую сущность и записывает назначенный идентификатор в ее Id.
         /// </summary>
-        /// <param name="item">Добавляемый объект сущности.</param>
+        /// <param name="item">Добавляемая сущность.</param>
+        /// <exception cref="ArgumentNullException">Параметр item равен null.</exception>
         void Add(T item);
 
         /// <summary>
-        /// Обновляет атрибуты существующей сущности в хранилище.
+        /// Обновляет существующую запись по идентификатору.
+        /// Не создает новую запись и не меняет идентификатор сохраненной записи.
         /// </summary>
-        /// <param name="item">Сущность с обновленными свойствами.</param>
+        /// <param name="item">
+        /// Сущность с идентификатором существующей записи и новыми значениями свойств.
+        /// </param>
+        /// <exception cref="ArgumentNullException">Параметр item равен null.</exception>
+        /// <exception cref="InvalidOperationException">
+        /// Запись с идентификатором item.Id не найдена.
+        /// </exception>
         void Update(T item);
 
         /// <summary>
-        /// Удаляет сущность из хранилища по её идентификатору.
+        /// Удаляет запись по идентификатору.
+        /// Если запись отсутствует, не изменяет хранилище.
         /// </summary>
-        /// <param name="id">Идентификатор удаляемой сущности.</param>
+        /// <param name="id">Идентификатор удаляемой записи.</param>
         void Delete(int id);
     }
 
     /// <summary>
-    /// Обобщенный интерфейс репозитория, выступающий фасадом CRUD-операций.
+    /// Объединяет контракты чтения и записи в фасад CRUD-операций.
     /// </summary>
-    /// <typeparam name="T">Тип сущности предметной области.</typeparam>
-    public interface IRepository<T> : IReadOnlyRepository<T>, IWriteOnlyRepository<T> where T : class, IDomainObject
+    /// <typeparam name="T">Тип сущности с идентификатором.</typeparam>
+    public interface IRepository<T> : IReadOnlyRepository<T>, IWriteOnlyRepository<T>
+        where T : class, IDomainObject
     {
     }
 }
