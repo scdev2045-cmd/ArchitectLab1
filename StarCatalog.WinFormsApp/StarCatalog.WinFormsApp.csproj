@@ -6,7 +6,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{70D381F5-038D-4658-B259-6E88F04A7339}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>BookLibrary.WinFormsApp</RootNamespace>
     <AssemblyName>BookLibrary.WinFormsApp</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
@@ -34,6 +34,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -71,7 +74,6 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="EditBookForm.resx">
       <DependentUpon>EditBookForm.cs</DependentUpon>
@@ -103,10 +105,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\StarCatalog.Presenter\StarCatalog.Presenter.csproj">
-      <Project>{5cb056e2-6fda-4912-b1b6-71ace0bfb989}</Project>
-      <Name>StarCatalog.Presenter</Name>
-    </ProjectReference>
     <ProjectReference Include="..\StarCatalog.Shared\StarCatalog.Shared.csproj">
       <Project>{81f2d6ef-fd28-4751-b764-f18e0220ec32}</Project>
       <Name>StarCatalog.Shared</Name>
